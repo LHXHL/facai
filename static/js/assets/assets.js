@@ -85,6 +85,7 @@ function AssetsModule() {
             </div>
         `);
         this.loadIpCidr();
+        this.bindIpEvents(container);
     };
 
     this.renderIp = function(container) {
@@ -108,6 +109,7 @@ function AssetsModule() {
             </div>
         `);
         this.loadIp();
+        this.bindIpEvents(container);
     };
 
     this.renderHighlights = function(container) {
@@ -156,6 +158,16 @@ function AssetsModule() {
                     });
                 }
             }
+        });
+    };
+
+    this.bindIpEvents = function(container) {
+        var self = this;
+        container.on('click', '#refreshIpCidr', function() {
+            self.loadIpCidr();
+        });
+        container.on('click', '#refreshIp', function() {
+            self.loadIp();
         });
     };
 

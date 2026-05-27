@@ -27,6 +27,24 @@ class Class_Core_Function:
             self.logger.error(f'读取配置文件失败: {str(e)}')
             return None
     
+    def callback_socks5_proxy(self):
+        '''
+        返回SOCKS5代理地址，配置为空时返回None
+        :return: socks5代理URL字符串，如 socks5://127.0.0.1:1080，未配置返回None
+        '''
+        try:
+            config = self.callback_config()
+            if not config:
+                return None
+            proxy_cfg = config.get('socks5_proxy', {})
+            proxy_host = proxy_cfg.get('proxy_host', '').strip()
+            proxy_port = str(proxy_cfg.get('proxy_port', '')).strip()
+            if proxy_host and proxy_port:
+                return f'socks5h://{proxy_host}:{proxy_port}'
+        except Exception:
+            pass
+        return None
+
     def callback_project_config(self):
         '''
         返回正在运行的项目配置（status_code=1）
@@ -230,13 +248,8 @@ class Class_Core_Function:
         request['website'] = self.callback_split_url(url, 0)
         request['method'] = "GET"
         request['headers'] = {
-            "Sec-Ch-Ua": "\"(Not(A:Brand\";v=\"8\", \"Chromium\";v=\"98\"",
             "Accept": "*/*",
-            "Sec-Ch-Ua-Platform": "\"Windows\"",
             "User-Agent": user_agent,
-            "Connection": "close", "Sec-Fetch-Site": "none", "Sec-Fetch-Dest": "document",
-            "Accept-Encoding": "gzip, deflate", "Sec-Fetch-Mode": "navigate", "Upgrade-Insecure-Requests": "1",
-            "Sec-Fetch-User": "?1", "Accept-Language": "zh-CN,zh;q=0.9", "Sec-Ch-Ua-Mobile": "?0",
             "referer": self.callback_split_url(url, 0),
             "origin": self.callback_split_url(url, 0)
         }
@@ -270,3 +283,67 @@ class Class_Core_Function:
             os.makedirs(image_dir)
         return image_dir
 
+    def _get_http_type(self, content_type='', file_extension=''):
+        """
+        判断 http_type
+        0=未知, 1=HTML可渲染, 2=不可渲染文件
+        使用项目配置中的 file_type（白名单）和 file_type_disallowed（黑名单）
+        """
+        file_type_allowed = self.callback_project_config().get('file_type', [])
+        file_type_disallowed = self.callback_project_config().get('file_type_disallowed', [])
+
+        ext = file_extension.lower() if file_extension else ''
+        
+        # 1. 黑名单（file_type_disallowed）-> 2
+        if ext and ext in file_type_disallowed:
+            return 2
+        
+        # 2. 白名单（file_type）-> 检查 content-type
+        if ext and ext in file_type_allowed:
+            if content_type and 'htm' in content_type.lower():
+                return 1
+            return 1  # 白名单文件默认可渲染
+        
+        # 3. content-type 判断
+        if content_type:
+            if 'htm' in content_type.lower():
+                return 1
+            return 2
+        
+        return 0
+
+    def extract_domain(self, subdomain):
+        """
+        从子域名中提取主域名，基于项目配置中的domain_list进行匹配
+
+        Args:
+            subdomain: 如 "www.molun.com"
+
+        Returns:
+            str: 匹配的主域名 如 "molun.com"，未匹配则返回原值
+        """
+        if not subdomain:
+            return ''
+
+        subdomain = subdomain.lower()
+
+        domain_list = []
+        config = self.callback_project_config()
+        if config:
+            domain_list = config.get('domain_list', [])
+
+        if not domain_list:
+            parts = subdomain.split('.')
+            if len(parts) >= 2:
+                return '.'.join(parts[-2:])
+            return subdomain
+
+        for domain in sorted(domain_list, key=len, reverse=True):
+            domain_lower = domain.lower()
+            if subdomain.endswith('.' + domain_lower) or subdomain == domain_lower:
+                return domain_lower
+
+        parts = subdomain.split('.')
+        if len(parts) >= 2:
+            return '.'.join(parts[-2:])
+        return subdomain

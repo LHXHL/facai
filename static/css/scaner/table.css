@@ -8,7 +8,7 @@
 }
 
 .scaner-table thead {
-    background: linear-gradient(135deg, #f7fafc 0%, #edf2f7 100%);
+    background: #fafafa;
 }
 
 .scaner-table th {
@@ -17,24 +17,21 @@
     font-weight: 600;
     color: #2d3748;
     font-size: 14px;
-    border-bottom: 2px solid #e2e8f0;
+    border-bottom: 2px solid #e5e5e5;
 }
 
 .scaner-table td {
     padding: 12px 16px;
-    border-bottom: 1px solid #e2e8f0;
-    color: #4a5568;
+    border-bottom: 1px solid #e5e5e5;
+    color: #555;
     font-size: 14px;
 }
 
 .scaner-table tbody tr:hover {
-    background: #f7fafc;
+    background: #fafafa;
 }
 
-/* Bootstrap 风格表格 */
-.table-responsive {
-    overflow-x: auto;
-}
+/* 表格响应式 - head.css 已定义 .table-responsive 基础样式 */
 
 .table {
     width: 100%;
@@ -59,7 +56,7 @@
 
 /* 表格链接样式 */
 .table a {
-    color: #007bff;
+    color: #2563eb;
     text-decoration: none;
 }
 

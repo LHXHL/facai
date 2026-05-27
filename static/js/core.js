@@ -35,10 +35,9 @@ var FacaiCore = {
     initModules: function() {
         this.modules.projects = new ProjectsModule();
         this.modules.services = new ServicesModule();
-        this.modules.spider = new SpiderModule();
-        this.modules['ai-agent'] = new AIAgentModule();
         this.modules.scaner = new ScanerModule();
         this.modules.traffic = new TrafficModule();
+        this.modules.capture = new CaptureModule();
         this.modules.assets = new AssetsModule();
         this.modules.tools = new ToolsModule();
         this.modules.system = new SystemModule();
@@ -56,6 +55,25 @@ var FacaiCore = {
             if (submenu.length > 0) {
                 e.preventDefault();
                 parentLi.toggleClass('open');
+            }
+        });
+
+        // 刷新/关闭页面时提醒（有正在运行的任务时）
+        window.addEventListener('beforeunload', function(e) {
+            var hasRunningTask = false;
+            // 检查是否有正在运行的项目
+            if (self.currentProject) {
+                hasRunningTask = true;
+            }
+            // 只要打开了 tab 就提醒（刷新会丢失所有页面状态）
+            if (typeof TabManager !== 'undefined' && TabManager.tabs && TabManager.tabs.length > 0) {
+                hasRunningTask = true;
+            }
+
+            if (hasRunningTask) {
+                e.preventDefault();
+                e.returnValue = '';
+                return '';
             }
         });
     },

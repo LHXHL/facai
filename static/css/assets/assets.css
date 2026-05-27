@@ -1,4 +1,4 @@
-.assets-container {
+﻿.assets-container {
     padding: 20px;
 }
 
@@ -10,10 +10,10 @@
 }
 
 .stat-card {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: #1a1a1a;
     border-radius: 16px;
     padding: 28px;
-    box-shadow: 0 12px 24px rgba(102, 126, 234, 0.25);
+    box-shadow: 0 12px 24px rgba(37, 99, 235, 0.25);
     text-align: center;
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     position: relative;
@@ -27,12 +27,12 @@
     right: -50%;
     width: 100%;
     height: 100%;
-    background: radial-gradient(circle, rgba(255, 255, 255, 0.1) 0%, transparent 60%);
+    background: transparent;
 }
 
 .stat-card:hover {
     transform: translateY(-8px) scale(1.02);
-    box-shadow: 0 20px 40px rgba(102, 126, 234, 0.35);
+    box-shadow: 0 20px 40px rgba(37, 99, 235, 0.35);
 }
 
 .stat-value {
@@ -56,12 +56,12 @@
     border-radius: 16px;
     padding: 24px;
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
-    border: 1px solid #e2e8f0;
+    border: 1px solid #e5e5e5;
 }
 
 .asset-item {
     padding: 20px;
-    border-bottom: 1px solid #e2e8f0;
+    border-bottom: 1px solid #e5e5e5;
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
@@ -70,7 +70,7 @@
 }
 
 .asset-item:hover {
-    background: linear-gradient(90deg, rgba(102, 126, 234, 0.05) 0%, rgba(118, 75, 162, 0.05) 100%);
+    background: #ffffff (100%);
     transform: translateX(8px);
 }
 
@@ -88,7 +88,7 @@
 }
 
 .asset-meta {
-    color: #718096;
+    color: #555;
     font-size: 14px;
 }
 
@@ -100,19 +100,19 @@
 }
 
 .asset-tag {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: #2563eb;
     color: #fff;
     padding: 6px 14px;
     border-radius: 20px;
     font-size: 12px;
     font-weight: 600;
-    box-shadow: 0 2px 8px rgba(102, 126, 234, 0.25);
+    box-shadow: 0 2px 8px rgba(37, 99, 235, 0.25);
     transition: all 0.3s;
 }
 
 .asset-tag:hover {
     transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.35);
+    box-shadow: 0 4px 12px rgba(37, 99, 235, 0.35);
 }
 
 /* 资产管理配置多窗口布局 */
@@ -124,16 +124,16 @@
 }
 
 .form-section {
-    background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
+    background: #ffffff;
     border-radius: 16px;
     padding: 24px;
     box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
-    border: 1px solid #e2e8f0;
+    border: 1px solid #e5e5e5;
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .form-section:hover {
-    box-shadow: 0 8px 30px rgba(102, 126, 234, 0.15);
+    box-shadow: 0 8px 30px rgba(37, 99, 235, 0.15);
     transform: translateY(-2px);
 }
 
@@ -143,8 +143,8 @@
     align-items: center;
     margin-bottom: 20px;
     padding-bottom: 12px;
-    border-bottom: 2px solid linear-gradient(90deg, #667eea 0%, #764ba2 100%);
-    background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+    border-bottom: 2px solid #1a1a1a;
+    background: #1a1a1a;
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
@@ -158,7 +158,7 @@
     left: 0;
     width: 60px;
     height: 3px;
-    background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+    background: #1a1a1a;
     border-radius: 2px;
 }
 
@@ -166,54 +166,53 @@
     margin: 0;
     font-size: 18px;
     font-weight: 700;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: #1a1a1a;
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
 }
 
-.form-group {
-    margin-bottom: 20px;
+/* 搜索栏区域 - 去掉多余边距 */
+.card > .form-group {
+    margin-bottom: 0 !important;
+    padding: 0 20px 16px !important;
 }
 
-.form-group label {
-    display: block;
-    margin-bottom: 8px;
-    font-weight: 600;
-    color: #2d3748;
-    font-size: 14px;
+/* 只匹配搜索行（.row.mb-3），不影响卡片列表的 .row */
+.card > .form-group > .row.mb-3 {
+    margin: 0 -6px;
 }
 
-.form-group textarea {
-    width: 100%;
-    padding: 12px 16px;
-    border: 2px solid #e2e8f0;
-    border-radius: 10px;
-    font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+.card > .form-group > .row.mb-3 > [class*="col-"] {
+    padding: 0 6px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+/* 搜索栏按钮微调 - 确保两个按钮在窄列中能水平排列 */
+.card > .form-group > .row.mb-3 > [class*="col-"] .btn {
+    padding: 6px 14px;
     font-size: 13px;
-    resize: vertical;
-    transition: all 0.3s;
-    background: #ffffff;
 }
 
-.form-group textarea:focus {
-    outline: none;
-    border-color: #667eea;
-    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+.card > .form-group > .row.mb-3 > [class*="col-"] .form-control {
+    height: 36px;
+    font-size: 13px;
 }
 
 .form-file-input {
     width: 100%;
     padding: 10px;
-    border: 2px dashed #cbd5e0;
+    border: 2px dashed #ddd;
     border-radius: 10px;
-    background: #f7fafc;
+    background: #fafafa;
     transition: all 0.3s;
 }
 
 .form-file-input:hover {
-    border-color: #667eea;
-    background: #edf2f7;
+    border-color: #2563eb;
+    background: #f0f0f0;
 }
 
 .form-actions {
@@ -232,10 +231,10 @@
 .import-type-btn {
     flex: 1;
     padding: 12px 20px;
-    border: 2px solid #e2e8f0;
+    border: 2px solid #e5e5e5;
     border-radius: 10px;
     background: #ffffff;
-    color: #4a5568;
+    color: #555;
     font-weight: 600;
     font-size: 14px;
     cursor: pointer;
@@ -251,7 +250,7 @@
     left: -100%;
     width: 100%;
     height: 100%;
-    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+    background: transparent;
     transition: left 0.5s;
 }
 
@@ -260,39 +259,25 @@
 }
 
 .import-type-btn:hover {
-    border-color: #667eea;
-    color: #667eea;
+    border-color: #2563eb;
+    color: #2563eb;
     transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.2);
+    box-shadow: 0 4px 12px rgba(37, 99, 235, 0.2);
 }
 
 .import-type-btn.active {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: #2563eb;
     border-color: transparent;
     color: #ffffff;
-    box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+    box-shadow: 0 4px 15px rgba(37, 99, 235, 0.4);
     transform: translateY(-2px);
 }
 
 .import-type-btn.active:hover {
-    box-shadow: 0 6px 20px rgba(102, 126, 234, 0.5);
+    box-shadow: 0 6px 20px rgba(37, 99, 235, 0.5);
 }
 
 /* 按钮样式优化 */
-/* 通用按钮样式 */
-.form-actions .btn,
-.btn {
-    padding: 10px 24px;
-    border-radius: 10px;
-    font-weight: 600;
-    font-size: 14px;
-    transition: all 0.3s;
-    border: none;
-    cursor: pointer;
-    background: #667eea;
-    color: #ffffff;
-}
-
 /* 确保section-header内的按钮文字可见 */
 .section-header .btn {
     -webkit-text-fill-color: #ffffff !important;
@@ -300,19 +285,15 @@
 }
 
 .form-actions .btn-primary {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    color: #ffffff;
-    box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+    box-shadow: 0 4px 15px rgba(37, 99, 235, 0.4);
 }
 
 .form-actions .btn-primary:hover {
     transform: translateY(-2px);
-    box-shadow: 0 6px 20px rgba(102, 126, 234, 0.5);
+    box-shadow: 0 6px 20px rgba(37, 99, 235, 0.5);
 }
 
 .form-actions .btn-danger {
-    background: linear-gradient(135deg, #f56565 0%, #e53e3e 100%);
-    color: #ffffff;
     box-shadow: 0 4px 15px rgba(245, 101, 101, 0.4);
 }
 
@@ -322,27 +303,12 @@
 }
 
 .form-actions .btn-success {
-    background: linear-gradient(135deg, #48bb78 0%, #38a169 100%);
-    color: #ffffff;
     box-shadow: 0 4px 15px rgba(72, 187, 120, 0.4);
 }
 
 .form-actions .btn-success:hover {
     transform: translateY(-2px);
     box-shadow: 0 6px 20px rgba(72, 187, 120, 0.5);
-}
-
-.form-actions .btn-sm,
-.btn-sm {
-    padding: 6px 14px;
-    font-size: 12px;
-}
-
-.form-actions .btn-primary.btn-sm,
-.btn-primary.btn-sm {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    -webkit-text-fill-color: #ffffff !important;
-    color: #ffffff !important;
 }
 
 /* 导入结果样式 */
@@ -380,14 +346,12 @@
 }
 
 .import-result .error {
-    background: #fff5f5;
+    background: #fafafa;
     color: #c53030;
     border: 1px solid #fc8181;
 }
 
-@keyframes spin {
-    to { transform: rotate(360deg); }
-}
+/* @keyframes spin 已在 head.css 中定义 */
 
 @keyframes fadeIn {
     from {

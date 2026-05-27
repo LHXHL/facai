@@ -59,6 +59,27 @@ class MongoDBHandler:
             return collection.insert_one(data)
         return None
 
+    def insert_many(self, collection_name, data_list, ordered=False):
+        """批量插入文档，默认无序（某条失败不影响其他）"""
+        collection = self.get_collection(collection_name)
+        if collection is not None and data_list:
+            try:
+                return collection.insert_many(data_list, ordered=ordered)
+            except pymongo.errors.BulkWriteError:
+                # 部分插入失败（如重复key），忽略继续
+                return None
+        return None
+
+    def bulk_write(self, collection_name, operations, ordered=False):
+        """批量执行写操作（InsertOne/UpdateOne等），默认无序"""
+        collection = self.get_collection(collection_name)
+        if collection is not None and operations:
+            try:
+                return collection.bulk_write(operations, ordered=ordered)
+            except pymongo.errors.BulkWriteError:
+                return None
+        return None
+
     def find(self, collection_name, query=None, projection=None, limit=None, sort=None, skip=None):
         collection = self.get_collection(collection_name)
         if collection is not None:
@@ -83,15 +104,27 @@ class MongoDBHandler:
         if collection is not None:
             try:
                 result = collection.update_one(query, {'$set': update_data})
-                print(f"[MongoDB] update_one - matched_count: {result.matched_count}, modified_count: {result.modified_count}")
-                print(f"[MongoDB] update_one - query: {query}")
-                print(f"[MongoDB] update_one - update_data keys: {list(update_data.keys())}")
                 if result.matched_count == 0:
                     print(f"[MongoDB] Warning: No document matched the query!")
                 return result
             except Exception as e:
                 print(f"[MongoDB] update_one error: {e}")
                 print(f"[MongoDB] update_data: {update_data}")
+                raise
+        return None
+
+    def replace_one(self, collection_name, query, replacement_data):
+        """完全替换文档（传入完整数据时使用，替换整个文档而非部分更新）"""
+        collection = self.get_collection(collection_name)
+        if collection is not None:
+            try:
+                result = collection.replace_one(query, replacement_data)
+                print(f"[MongoDB] replace_one: query={query}, matched_count={result.matched_count}, modified_count={result.modified_count}")
+                if result.matched_count == 0:
+                    print(f"[MongoDB] ERROR: No document matched the query for replace_one! Query: {query}")
+                return result
+            except Exception as e:
+                print(f"[MongoDB] replace_one error: {e}")
                 raise
         return None
 
@@ -119,6 +152,13 @@ class MongoDBHandler:
         if collection is not None:
             return collection.count_documents(query or {})
         return 0
+
+    def aggregate(self, collection_name, pipeline):
+        """执行聚合管道操作"""
+        collection = self.get_collection(collection_name)
+        if collection is not None:
+            return list(collection.aggregate(pipeline))
+        return []
 
     def close(self):
         if self.client is not None:

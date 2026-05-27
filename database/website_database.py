@@ -131,3 +131,9 @@ class WebsiteDatabase:
             query = {}
 
         return self.db_handler.count_documents(self.collection_name, query)
+
+    def count_by_status(self, status=0):
+        """统计指定状态的网站数量"""
+        if not self.collection_name:
+            return 0
+        return self.db_handler.count_documents(self.collection_name, {'status': status})

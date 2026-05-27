@@ -13,10 +13,13 @@
 """
 
 import time
+import traceback
+from concurrent.futures import ThreadPoolExecutor, as_completed
 from urllib.parse import urlparse
 from service.Class_Core_Function import Class_Core_Function
 from service.libs.replay_request import send_http_request
 from service.spider.http_standardization import callback_pathname
+from database.vuln_param_database import VulnParamDatabase
 
 # 导入参数处理模块
 from .param_handler import ParamHandler
@@ -76,23 +79,6 @@ class VulnerabilityScanner:
         self.scan_results = []
     
     # ==================== 数据库操作 ====================
-    
-    def _extract_website_info(self, url):
-        """
-        从URL提取website和subdomain
-        :param url: 完整URL
-        :return: (website, subdomain)
-        """
-        try:
-            parsed = urlparse(url)
-            domain = parsed.netloc
-            # website格式: scheme://domain/
-            website = f"{parsed.scheme}://{domain}/"
-            # subdomain就是域名部分
-            subdomain = domain
-            return website, subdomain
-        except:
-            return url, ''
     
     def _extract_vuln_category(self, vuln_type_detail):
         """
@@ -176,7 +162,8 @@ class VulnerabilityScanner:
         :return: 数据库格式的漏洞数据（严格按照文档定义的字段）
         """
         url = vuln_data.get('url', request_data.get('url', ''))
-        website, subdomain = self._extract_website_info(url)
+        website = self.Core_Function.callback_split_url(url, 0)
+        subdomain = self.Core_Function.callback_split_url(url, 1)
         
         # 构建数据库格式（严格按照文档定义，不添加任何额外字段）
         db_vuln = {
@@ -245,15 +232,29 @@ class VulnerabilityScanner:
         std_result = None
         
         try:
-            # 0. 验证目标可达性
+            # 0. 扩展名过滤：非 .js .json 才继续扫描
+            ext = self.Core_Function.callback_file_extensions(request_data['url'])
+            if ext in ('.js', '.json'):
+                print(f"[Scanner] 跳过 {ext} 文件扫描")
+                return vulnerabilities
+
+            # 1. 验证目标可达性
             print("[Scanner] 验证目标可达性...")
             test_response = send_http_request(request_data, timeout=self.timeout)
             if test_response is None:
                 print("[Scanner] 目标不可达，无法进行扫描")
                 return vulnerabilities
             print(f"[Scanner] 目标可达，状态码: {test_response.status_code}")
+
+            # 1.1 渲染类型判断：不可渲染文件跳过XSS检测
+            content_type = test_response.headers.get('Content-Type', '')
+            file_ext = self.Core_Function.callback_file_extensions(request_data.get('url', ''))
+            http_type = self.Core_Function._get_http_type(content_type=content_type, file_extension=file_ext)
+            if http_type == 2:
+                print("[Scanner] 响应不可渲染，跳过XSS检测")
+                scan_options['xss'] = False
             
-            # 1. 提取参数（自动模式启用去重，手动模式不去重）
+            # 2. 提取参数（自动模式启用去重，手动模式不去重）
             params = self.param_handler.callback_list_param(request_data, enable_dedup=enable_dedup)
             print(f"[Scanner] 提取到 {len(params) if params else 0} 个参数" + (" (已启用去重)" if enable_dedup else ""))
             if params:
@@ -267,7 +268,7 @@ class VulnerabilityScanner:
             # 记录本次扫描的参数
             scanned_params = [p.get('param_name') for p in params if p.get('param_name')]
             
-            # 2. 异常检测（基于机器学习）
+            # 3. 异常检测（基于机器学习）
             anomaly_params = None
             baseline_responses = None
             
@@ -284,7 +285,7 @@ class VulnerabilityScanner:
                     anomaly_params = anomaly_result.get('anomaly_params', [])
                     baseline_responses = anomaly_result.get('baseline_responses')
             
-            # 3. SQL注入检测（只测试异常参数，使用相似度判断）
+            # 4. SQL注入检测（只测试异常参数，使用相似度判断）
             if scan_options.get('sqli') and anomaly_params:
                 print(f"[Scanner] 开始SQL注入检测，异常参数: {[p.get('param_name') for p in anomaly_params]}")
                 vulns = self.sqli_scanner.scan(
@@ -304,7 +305,7 @@ class VulnerabilityScanner:
             elif scan_options.get('sqli') and not anomaly_params:
                 print("[Scanner] SQL注入检测：没有异常参数，跳过检测")
             
-            # 4. 对每个参数进行其他扫描（XSS、RCE、SSRF等）
+            # 5. 对每个参数进行其他扫描（XSS、RCE、SSRF等）
             print(f"[Scanner] 开始对 {len(params)} 个参数进行扫描")
             for param_info in params:
                 param_name = param_info.get('param_name', 'unknown')
@@ -351,7 +352,7 @@ class VulnerabilityScanner:
                             self._save_vuln_to_db(vuln, request_data)
                         vulnerabilities.append(vuln)
             
-            # 5. 信息泄露检测（响应级别）
+            # 6. 信息泄露检测（响应级别）
             if scan_options.get('info_leak'):
                 print("[Scanner] 开始信息泄露检测")
                 response = send_http_request(request_data, timeout=self.timeout)
@@ -372,7 +373,7 @@ class VulnerabilityScanner:
             traceback.print_exc()
         
         finally:
-            # 6. 将扫描的参数写入去重表（仅自动模式）
+            # 7. 将扫描的参数写入去重表（仅自动模式）
             if enable_dedup and scanned_params:
                 try:
                     url = request_data.get('url', '')
@@ -445,8 +446,6 @@ class VulnerabilityScanner:
         :param batch_size: 每批次处理的流量数量（默认10）
         :param scan_options: 扫描选项
         """
-        import time
-        
         print(f"[AutoScan] 启动自动扫描服务，批次大小 {batch_size}")
         
         while True:
@@ -463,6 +462,7 @@ class VulnerabilityScanner:
                 
                 # 如果服务未开启，睡眠 10 秒后重新判断
                 if scaner_service != 1:
+                    print('漏洞扫描服务未开启...睡眠10秒')
                     time.sleep(10)
                     continue
                 
@@ -475,36 +475,43 @@ class VulnerabilityScanner:
                 
                 print(f"[AutoScan] 获取到 {len(traffic_list)} 条未扫描流量")
                 
-                # 3. 遍历每条流量进行扫描
-                for traffic in traffic_list:
-                    traffic_id = traffic.get('_id')
-                    url = traffic.get('url', 'Unknown')
-                    
+                # 3. 并发扫描流量
+                http_thread = project_config.get('http_thread', 3)
+                max_workers = max(1, min(http_thread, len(traffic_list)))
+                print(f"[AutoScan] 使用 {max_workers} 个并发线程扫描")
+
+                from concurrent.futures import ThreadPoolExecutor, as_completed
+
+                def _scan_one(traffic_item):
+                    """单条流量扫描任务"""
+                    tid = traffic_item.get('_id')
+                    turl = traffic_item.get('url', 'Unknown')
                     try:
-                        print(f"[AutoScan] 开始扫描: {url}")
-                        
-                        # 3.1 构造请求数据
-                        request_data = {
-                            'url': traffic.get('url', ''),
-                            'method': traffic.get('method', 'GET'),
-                            'headers': traffic.get('headers', {}),
-                            'body': traffic.get('body', '')
+                        print(f"[AutoScan] 开始扫描: {turl}")
+                        req_data = {
+                            'url': traffic_item.get('url', ''),
+                            'method': traffic_item.get('method', 'GET'),
+                            'headers': traffic_item.get('headers', {}),
+                            'body': traffic_item.get('body', '')
                         }
-                        
-                        # 3.2 执行扫描（自动模式启用去重）
-                        vulns = self.scan(request_data, scan_options=scan_options, save_to_db=True, enable_dedup=True)
-                        
-                        print(f"[AutoScan] 扫描完成: {url}，发现 {len(vulns)} 个漏洞")
-                        
-                        # 3.3 扫描完成，标记为已扫描
-                        self.traffic_db.mark_traffic_as_scanned(traffic_id)
-                        
+                        vulns = self.scan(req_data, scan_options=scan_options, save_to_db=True, enable_dedup=True)
+                        print(f"[AutoScan] 扫描完成: {turl}，发现 {len(vulns)} 个漏洞")
+                        self.traffic_db.mark_traffic_as_scanned(tid)
+                        return (turl, vulns)
                     except Exception as e:
-                        error_msg = f"扫描失败 [{url}]: {str(e)}"
+                        error_msg = f"扫描失败 [{turl}]: {str(e)}"
                         print(f"[AutoScan] {error_msg}")
                         self.Core_Function.callback_logging().error(error_msg)
-                        # 扫描失败也标记为已扫描，避免重复扫描
-                        self.traffic_db.mark_traffic_as_scanned(traffic_id)
+                        self.traffic_db.mark_traffic_as_scanned(tid)
+                        return (turl, [])
+
+                with ThreadPoolExecutor(max_workers=max_workers) as executor:
+                    futures = {executor.submit(_scan_one, t): t for t in traffic_list}
+                    for future in as_completed(futures):
+                        try:
+                            future.result()
+                        except Exception as e:
+                            print(f"[AutoScan] 线程异常: {str(e)}")
                 
             except KeyboardInterrupt:
                 print("\n[AutoScan] 接收到停止信号，退出自动扫描")

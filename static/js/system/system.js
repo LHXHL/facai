@@ -8,10 +8,6 @@ function SystemModule() {
                     <input type="text" id="chromePath">
                 </div>
                 <div class="form-group">
-                    <label>Burp路径</label>
-                    <input type="text" id="burpPath">
-                </div>
-                <div class="form-group">
                     <label>Chrome CDP端口</label>
                     <input type="number" id="chromeCdpPort">
                 </div>
@@ -45,7 +41,6 @@ function SystemModule() {
             success: function(data) {
                 if (data.config) {
                     $('#chromePath').val(data.config.chrome_path || '');
-                    $('#burpPath').val(data.config.burp_path || '');
                     $('#chromeCdpPort').val(data.config.chrome_cdp_port || '');
                     $('#mitmproxyPort').val(data.config.mitmproxy_port || '');
                     if (data.config.mongodb) {
@@ -62,7 +57,6 @@ function SystemModule() {
         $('#saveConfig').on('click', function() {
             var config = {
                 chrome_path: $('#chromePath').val(),
-                burp_path: $('#burpPath').val(),
                 chrome_cdp_port: parseInt($('#chromeCdpPort').val()),
                 mitmproxy_port: parseInt($('#mitmproxyPort').val()),
                 mongodb: {

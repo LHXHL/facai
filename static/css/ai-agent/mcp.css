@@ -1,0 +1,57 @@
+/* AI Agent - MCP 样式 */
+
+.mcp-box {
+    padding: 0;
+}
+
+.mcp-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.mcp-header h5 {
+    margin: 0;
+}
+
+.mcp-editor textarea {
+    width: 100%;
+    min-height: 500px;
+    font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+    font-size: 14px;
+    line-height: 1.6;
+    padding: 16px;
+    border: 1px solid #e5e5e5;
+    border-radius: 8px;
+    background: #fafafa;
+    resize: vertical;
+    tab-size: 4;
+}
+
+.mcp-editor textarea:focus {
+    outline: none;
+    border-color: #2563eb;
+    box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.1);
+    background: #ffffff;
+}
+
+.mcp-server-item {
+    margin-bottom: 12px;
+}
+
+.mcp-server-item .card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.mcp-server-item .card-header .btn {
+    margin-left: 8px;
+}
+
+.mcp-server-item .card-body pre {
+    margin: 0;
+    font-size: 12px;
+    white-space: pre-wrap;
+}

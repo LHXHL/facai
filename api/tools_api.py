@@ -2,8 +2,30 @@
 from flask import Blueprint, request, jsonify
 import json
 import time
+import base64
 from service.libs.replay_request import replay_http_request
 from service.libs.port_scan import port_scan
+
+_BINARY_CONTENT_TYPES = {
+    'image/', 'application/pdf', 'application/octet-stream',
+    'application/zip', 'application/gzip', 'application/x-tar',
+    'application/x-rar', 'application/x-7z',
+    'audio/', 'video/', 'application/x-shockwave-flash',
+    'application/vnd.ms-', 'application/vnd.openxmlformats',
+    'application/msword', 'application/java-archive',
+    'application/x-executable', 'application/x-dosexec',
+    'font/', 'application/x-font',
+}
+
+
+def _is_binary_content_type(ct):
+    if not ct:
+        return False
+    ct_lower = ct.lower().split(';')[0].strip()
+    for prefix in _BINARY_CONTENT_TYPES:
+        if ct_lower.startswith(prefix):
+            return True
+    return False
 
 tools_api = Blueprint('tools_api', __name__)
 
@@ -27,6 +49,8 @@ def tools_replay():
         method = data.get('method', 'GET').upper()
         headers = data.get('headers', {})
         body = data.get('body', '')
+        body_encoding = data.get('body_encoding', 'plain')
+        max_body_size = data.get('max_body_size', 102400)
         
         if not url:
             return jsonify({
@@ -43,33 +67,99 @@ def tools_replay():
         if body and isinstance(body, (dict, list)):
             body = json.dumps(body, ensure_ascii=False)
         
-        # 执行HTTP请求
         start_time = time.time()
         response = replay_http_request(
             url=url,
             method=method,
             headers=headers,
-            body=body
+            body=body,
+            body_encoding=body_encoding
         )
         end_time = time.time()
-        
-        # 计算响应时间（毫秒）
+
         response_time = int((end_time - start_time) * 1000)
-        
-        # 构建响应数据
+
+        resp_headers = {}
+        for k, v in response.headers.items():
+            resp_headers[k] = str(v)
+
+        content_type = resp_headers.get('Content-Type', resp_headers.get('content-type', ''))
+        is_binary = _is_binary_content_type(content_type)
+
+        if is_binary:
+            raw_content = response.content
+            if max_body_size == -1:
+                max_body_size = 100 * 1024 * 1024
+            truncated = False
+            original_size = len(raw_content)
+            if len(raw_content) > max_body_size:
+                raw_content = raw_content[:max_body_size]
+                truncated = True
+            response_body = base64.b64encode(raw_content).decode('ascii')
+            body_encoding = 'base64'
+        else:
+            try:
+                enc = response.encoding
+                if enc and enc.lower() in ('iso-8859-1',):
+                    ct = response.headers.get('Content-Type', '')
+                    if 'charset=' in ct:
+                        import re
+                        m = re.search(r'charset=([^\s;]+)', ct, re.I)
+                        if m:
+                            enc = m.group(1).strip('"\'')
+                        else:
+                            enc = None
+                    else:
+                        enc = None
+                if enc:
+                    try:
+                        response_body = response.content.decode(enc)
+                    except Exception:
+                        response_body = response.content.decode('utf-8', errors='replace')
+                else:
+                    try:
+                        response.content.decode('utf-8')
+                        response_body = response.content.decode('utf-8')
+                    except Exception:
+                        try:
+                            from chardet import detect
+                            r = detect(response.content[:4096])
+                            if r and r.get('encoding'):
+                                response_body = response.content.decode(r['encoding'])
+                            else:
+                                response_body = response.content.decode('utf-8', errors='replace')
+                        except Exception:
+                            response_body = response.content.decode('utf-8', errors='replace')
+            except Exception:
+                response_body = response.content.decode('utf-8', errors='replace')
+
+            if max_body_size == -1:
+                max_body_size = 100 * 1024 * 1024
+            truncated = False
+            original_size = len(response_body)
+            if len(response_body) > max_body_size:
+                response_body = response_body[:max_body_size]
+                truncated = True
+            body_encoding = 'plain'
+
         result = {
             'status_code': response.status_code,
             'response_time': f'{response_time}ms',
-            'response_headers': dict(response.headers),
-            'response_body': response.text
+            'response_headers': resp_headers,
+            'response_body': response_body,
+            'body_encoding': body_encoding,
         }
-        
+
+        if truncated:
+            result['_truncated'] = True
+            result['_originalSize'] = original_size
+
         return jsonify(result)
         
     except Exception as e:
         return jsonify({
-            'error': f'请求失败: {str(e)}'
-        }), 500
+            'error': str(e)
+        })
 
 
 @tools_api.route('/api/tools/port-scan', methods=['POST'])

@@ -70,8 +70,8 @@
 }
 
 .scaner-logs-scope .scaner-table thead {
-    background: #f7fafc;
-    border-bottom: 2px solid #e2e8f0;
+    background: #fafafa;
+    border-bottom: 2px solid #e5e5e5;
 }
 
 .scaner-logs-scope .scaner-table th {
@@ -79,25 +79,25 @@
     text-align: left;
     font-size: 13px;
     font-weight: 600;
-    color: #4a5568;
+    color: #555;
     text-transform: uppercase;
     letter-spacing: 0.5px;
 }
 
 .scaner-logs-scope .scaner-table td {
     padding: 12px 16px;
-    border-bottom: 1px solid #e2e8f0;
+    border-bottom: 1px solid #e5e5e5;
     font-size: 14px;
     color: #2d3748;
 }
 
 .scaner-logs-scope .scaner-table tbody tr:hover {
-    background: #f7fafc;
+    background: #fafafa;
 }
 
 .scaner-logs-scope .scaner-table code {
     padding: 3px 8px;
-    background: #edf2f7;
+    background: #f0f0f0;
     border-radius: 4px;
     font-size: 13px;
     color: #e53e3e;
@@ -119,11 +119,11 @@
 }
 
 .scaner-logs-scope .badge-info {
-    background: #3182ce;
+    background: #2563eb;
 }
 
 .scaner-logs-scope .badge-success {
-    background: #38a169;
+    background: #16a34a;
 }
 
 .scaner-logs-scope .badge-warning {
@@ -182,7 +182,7 @@
     justify-content: space-between;
     align-items: center;
     padding: 20px 24px;
-    border-bottom: 1px solid #e2e8f0;
+    border-bottom: 1px solid #e5e5e5;
     flex-shrink: 0;
 }
 
@@ -202,7 +202,7 @@
     background: none;
     border: none;
     font-size: 28px;
-    color: #718096;
+    color: #555;
     cursor: pointer;
     padding: 0;
     width: 32px;
@@ -215,7 +215,7 @@
 }
 
 #logDetailModal .close:hover {
-    background: #edf2f7;
+    background: #f0f0f0;
     color: #2d3748;
 }
 
@@ -231,7 +231,7 @@
     display: flex;
     gap: 8px;
     margin-bottom: 20px;
-    border-bottom: 2px solid #e2e8f0;
+    border-bottom: 2px solid #e5e5e5;
     padding-bottom: 0;
 }
 
@@ -241,7 +241,7 @@
     padding: 12px 20px;
     font-size: 14px;
     font-weight: 500;
-    color: #718096;
+    color: #555;
     cursor: pointer;
     border-bottom: 2px solid transparent;
     margin-bottom: -2px;
@@ -249,12 +249,12 @@
 }
 
 #logDetailModal .tab-btn:hover {
-    color: #4a5568;
+    color: #555;
 }
 
 #logDetailModal .tab-btn.active {
-    color: #667eea;
-    border-bottom-color: #667eea;
+    color: #1a1a1a;
+    border-bottom-color: #1a1a1a;
 }
 
 /* Tab内容 */
@@ -268,8 +268,8 @@
 
 /* 代码块 */
 #logDetailModal .tab-content pre {
-    background: #f7fafc;
-    border: 1px solid #e2e8f0;
+    background: #fafafa;
+    border: 1px solid #e5e5e5;
     border-radius: 8px;
     padding: 16px;
     font-size: 13px;

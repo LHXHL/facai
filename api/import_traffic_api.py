@@ -48,6 +48,21 @@ class ImportTrafficAPI:
                 return None
         return self.project_db.get_project_by_name(project_name)
 
+    def _subdomain_to_url(self, subdomain, project_name=None):
+        """子域名转为URL，根据项目配置决定协议和端口"""
+        project_config = self._get_project_config(project_name)
+        scheme = 'http'
+        port = 80
+        if project_config:
+            scheme = project_config.get('scheme', 'http')
+            port = project_config.get('port', 80)
+        url = f"{scheme}://{subdomain}/"
+        if scheme == 'http' and port != 80:
+            url = f"{scheme}://{subdomain}:{port}/"
+        elif scheme == 'https' and port != 443:
+            url = f"{scheme}://{subdomain}:{port}/"
+        return url
+
     def import_traffic_url(self, url, project_name=None):
         """
         导入URL（接口1）
@@ -107,20 +122,7 @@ class ImportTrafficAPI:
             if not self.class_check.check_domain(subdomain):
                 return {'success': False, 'message': '子域名格式错误'}
 
-            # 子域名转为URL，再转为http请求
-            project_config = self._get_project_config(project_name)
-            scheme = 'http'
-            port = 80
-            if project_config:
-                scheme = project_config.get('scheme', 'http')
-                port = project_config.get('port', 80)
-
-            # 子域名转为URL
-            url = f"{scheme}://{subdomain}/"
-            if scheme == 'http' and port != 80:
-                url = f"{scheme}://{subdomain}:{port}/"
-            elif scheme == 'https' and port != 443:
-                url = f"{scheme}://{subdomain}:{port}/"
+            url = self._subdomain_to_url(subdomain, project_name)
 
             # URL转换为HTTP请求
             request_data = self.Core_Function.create_request(url)
@@ -154,9 +156,9 @@ class ImportTrafficAPI:
                 return {'success': False, 'message': '未找到运行中的项目'}
 
             total = len(list_request)
-            imported = 0
             skipped = 0
             errors = []
+            valid_requests = []  # 收集所有有效请求，最后批量插入
 
             for request_item in list_request:
                 if not isinstance(request_item, dict):
@@ -199,20 +201,7 @@ class ImportTrafficAPI:
                             skipped += 1
                             continue
 
-                        # 子域名转为URL
-                        project_config = self._get_project_config(project_name)
-                        scheme = 'http'
-                        port = 80
-                        if project_config:
-                            scheme = project_config.get('scheme', 'http')
-                            port = project_config.get('port', 80)
-
-                        # 子域名转为URL
-                        url = f"{scheme}://{subdomain}/"
-                        if scheme == 'http' and port != 80:
-                            url = f"{scheme}://{subdomain}:{port}/"
-                        elif scheme == 'https' and port != 443:
-                            url = f"{scheme}://{subdomain}:{port}/"
+                        url = self._subdomain_to_url(subdomain, project_name)
 
                         # URL转换为HTTP请求
                         request_data = self.Core_Function.create_request(url)
@@ -225,13 +214,28 @@ class ImportTrafficAPI:
                         skipped += 1
                         continue
 
-                    # 插入数据库到project_{name}_traffic表
-                    db_handler.insert_one(collection_name, request_data)
-                    imported += 1
+                    valid_requests.append(request_data)
                 except Exception as e:
                     skipped += 1
                     errors.append(str(e))
                     continue
+
+            # 批量去重 + 批量插入
+            imported = 0
+            if valid_requests:
+                # $in 批量查询已存在的URL
+                urls_to_check = [r.get('url', '') for r in valid_requests]
+                existing_docs = db_handler.find(
+                    collection_name,
+                    {'url': {'$in': urls_to_check}},
+                    projection={'url': 1}
+                )
+                existing_urls = {doc['url'] for doc in existing_docs}
+                truly_new = [r for r in valid_requests if r.get('url', '') not in existing_urls]
+
+                if truly_new:
+                    result = db_handler.insert_many(collection_name, truly_new)
+                    imported = len(result.inserted_ids) if result else 0
 
             return {
                 'success': True,

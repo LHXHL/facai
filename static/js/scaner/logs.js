@@ -58,7 +58,7 @@ function ScanerLogsModule() {
                     <tr><td colspan="7" class="text-center">加载中...</td></tr>
                 </tbody>
             </table>
-            <div id="pagination"></div>
+            <div id="logsPagination" class="module-pagination"></div>
         </div>
     </div>
 </div>
@@ -85,7 +85,7 @@ function ScanerLogsModule() {
                 
                 if (response.data.logs.length === 0) {
                     tbody.append('<tr><td colspan="7" class="text-center">暂无数据</td></tr>');
-                    container.find('#pagination').empty();
+                    container.find('.module-pagination').empty();
                     return;
                 }
                 
@@ -146,8 +146,8 @@ function ScanerLogsModule() {
                         self.currentPage = page;
                         self.loadLogs(container);
                     }
-                });
-                container.find('#pagination').html(paginationHtml);
+                }, container);
+                container.find('.module-pagination').html(paginationHtml);
             }
         }).fail(function() {
             container.find('#logsBody').html('<tr><td colspan="7" class="text-center">加载失败</td></tr>');

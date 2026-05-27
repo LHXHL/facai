@@ -41,7 +41,7 @@
 }
 
 .scaner-config-card-header {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: linear-gradient(135deg, #334155, #475569);
     color: white;
     padding: 15px 20px;
     display: flex;
@@ -75,8 +75,8 @@
 
 .scaner-config-form-control:focus {
     outline: none;
-    border-color: #667eea;
-    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+    border-color: #2563eb;
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
 }
 
 .scaner-config-form-text {
@@ -105,21 +105,21 @@
 }
 
 .scaner-config-btn-primary {
-    background: #667eea;
+    background: #2563eb;
     color: white;
 }
 
 .scaner-config-btn-primary:hover {
-    background: #5568d3;
+    background: #1d4ed8;
 }
 
 .scaner-config-btn-success {
-    background: #28a745;
+    background: #16a34a;
     color: white;
 }
 
 .scaner-config-btn-success:hover {
-    background: #218838;
+    background: #15803d;
 }
 
 .scaner-config-btn-secondary {
@@ -132,12 +132,12 @@
 }
 
 .scaner-config-btn-danger {
-    background: #dc3545;
+    background: #dc2626;
     color: white;
 }
 
 .scaner-config-btn-danger:hover {
-    background: #c82333;
+    background: #b91c1c;
 }
 
 .scaner-config-btn-sm {
@@ -166,7 +166,7 @@
     flex: 1;
     text-align: center;
     padding: 20px;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: linear-gradient(135deg, #1d4ed8, #3b82f6);
     border-radius: 8px;
     color: white;
 }
@@ -250,7 +250,7 @@
     position: fixed;
     bottom: 20px;
     right: 20px;
-    background: #28a745;
+    background: #334155;
     color: white;
     padding: 12px 24px;
     border-radius: 4px;

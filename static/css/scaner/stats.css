@@ -8,53 +8,56 @@
     margin-bottom: 24px;
 }
 
-/* 统计卡片 */
-.stat-card {
+/* 统计卡片 - 使用作用域选择器提高优先级，防止被 assets.css 覆盖 */
+.scaner-overview-container .stat-card {
     border-radius: 12px;
     padding: 20px;
     color: #ffffff;
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
     transition: transform 0.2s, box-shadow 0.2s;
+    background: none;
 }
 
-.stat-card:hover {
+.scaner-overview-container .stat-card:hover {
     transform: translateY(-2px);
     box-shadow: 0 6px 16px rgba(0, 0, 0, 0.15);
 }
 
 /* 统计卡片颜色变体 */
-.stat-success {
-    background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+.scaner-overview-container .stat-success {
+    background: linear-gradient(135deg, #16a34a, #22c55e) !important;
 }
 
-.stat-danger {
-    background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+.scaner-overview-container .stat-danger {
+    background: linear-gradient(135deg, #b91c1c, #ef4444) !important;
 }
 
-.stat-warning {
-    background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+.scaner-overview-container .stat-warning {
+    background: linear-gradient(135deg, #d97706, #f59e0b) !important;
 }
 
-.stat-info {
-    background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+.scaner-overview-container .stat-info {
+    background: linear-gradient(135deg, #1d4ed8, #3b82f6) !important;
 }
 
 /* 统计卡片内容 */
-.stat-content {
+.scaner-overview-container .stat-content {
     text-align: center;
 }
 
-.stat-label {
+.scaner-overview-container .stat-label {
     font-size: 14px;
     font-weight: 600;
     opacity: 0.9;
     margin-bottom: 8px;
+    color: rgba(255, 255, 255, 0.9);
 }
 
-.stat-value {
+.scaner-overview-container .stat-value {
     font-size: 32px;
     font-weight: 700;
     margin: 0;
+    color: #ffffff;
 }
 
 /* 信息网格 */
@@ -76,7 +79,7 @@
     text-transform: uppercase;
     letter-spacing: 1px;
     opacity: 0.9;
-    color: #718096;
+    color: #555;
 }
 
 .info-item span {

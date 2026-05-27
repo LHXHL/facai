@@ -75,9 +75,9 @@ def get_html_list():
         return jsonify({'success': False, 'message': str(e)}), 500
 
 
-@html_api.route('/api/assets/html/<html_id>', methods=['GET'])
-def get_html_detail(html_id):
-    """获取HTML详情"""
+@html_api.route('/api/assets/html/<html_md5>', methods=['GET'])
+def get_html_detail(html_md5):
+    """获取HTML详情（优先通过 html_md5 查询）"""
     try:
         # 获取当前运行的项目名称
         project_name = get_running_project_name()
@@ -85,7 +85,7 @@ def get_html_detail(html_id):
             return jsonify({'success': False, 'message': '请先选择项目'})
 
         db = HtmlDatabase(project_name)
-        html = db.get_html_by_id(html_id)
+        html = db.get_html_by_md5(html_md5)
 
         if html:
             # 转换ObjectId为字符串

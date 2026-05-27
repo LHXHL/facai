@@ -1,4 +1,4 @@
-/* 资产总览样式 - 使用 facai- 前缀避免冲突 */
+﻿/* 资产总览样式 - 使用 facai- 前缀避免冲突 */
 
 .facai-overview-container {
     padding: 20px;
@@ -34,7 +34,7 @@
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
     cursor: pointer;
     transition: all 0.3s;
-    border: 1px solid #e2e8f0;
+    border: 1px solid #e5e5e5;
 }
 
 .facai-overview-stats .facai-stat-card:hover {
@@ -58,37 +58,42 @@
 }
 
 .facai-overview-stats .facai-subdomain-icon {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: #2563eb;
     color: #ffffff;
 }
 
 .facai-overview-stats .facai-website-icon {
-    background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+    background: #16a34a;
     color: #ffffff;
 }
 
 .facai-overview-stats .facai-http-icon {
-    background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+    background: #d97706;
     color: #ffffff;
 }
 
 .facai-overview-stats .facai-html-icon {
-    background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+    background: #7c3aed;
     color: #ffffff;
 }
 
 .facai-overview-stats .facai-highlight-icon {
-    background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);
+    background: #ec4899;
     color: #ffffff;
 }
 
 .facai-overview-stats .facai-ip-icon {
-    background: linear-gradient(135deg, #06b6d4 0%, #0891b2 100%);
+    background: #0891b2;
     color: #ffffff;
 }
 
 .facai-overview-stats .facai-ip-single-icon {
-    background: linear-gradient(135deg, #ec4899 0%, #db2777 100%);
+    background: #0891b2;
+    color: #ffffff;
+}
+
+.facai-overview-stats .facai-traffic-icon {
+    background: #555;
     color: #ffffff;
 }
 
@@ -106,7 +111,14 @@
 
 .facai-overview-stats .facai-stat-label {
     font-size: 14px !important;
-    color: #718096 !important;
+    color: #555 !important;
+}
+
+.facai-overview-stats .facai-stat-pending {
+    font-size: 12px !important;
+    color: #e53e3e !important;
+    margin-top: 4px;
+    font-weight: 500;
 }
 
 /* 图表区域 */
@@ -122,7 +134,7 @@
     border-radius: 12px;
     padding: 20px;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
-    border: 1px solid #e2e8f0;
+    border: 1px solid #e5e5e5;
 }
 
 .facai-chart-title {
@@ -131,7 +143,7 @@
     color: #2d3748;
     margin-bottom: 16px;
     padding-bottom: 12px;
-    border-bottom: 1px solid #e2e8f0;
+    border-bottom: 1px solid #e5e5e5;
 }
 
 .facai-chart-content {
@@ -164,13 +176,13 @@
 
 .facai-bar-label {
     font-size: 13px;
-    color: #4a5568;
+    color: #555;
     font-weight: 500;
 }
 
 .facai-bar-container {
     height: 24px;
-    background: #f7fafc;
+    background: #fafafa;
     border-radius: 12px;
     overflow: hidden;
 }
@@ -183,7 +195,7 @@
 
 .facai-bar-value {
     font-size: 12px;
-    color: #718096;
+    color: #555;
     text-align: right;
 }
 
@@ -197,7 +209,7 @@
     border-radius: 12px;
     padding: 20px;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
-    border: 1px solid #e2e8f0;
+    border: 1px solid #e5e5e5;
 }
 
 .facai-recent-title {
@@ -206,7 +218,7 @@
     color: #2d3748;
     margin-bottom: 16px;
     padding-bottom: 12px;
-    border-bottom: 1px solid #e2e8f0;
+    border-bottom: 1px solid #e5e5e5;
 }
 
 .facai-recent-content {
@@ -222,7 +234,7 @@
 
 .facai-recent-section {
     padding-bottom: 12px;
-    border-bottom: 1px solid #f7fafc;
+    border-bottom: 1px solid #fafafa;
 }
 
 .facai-recent-section:last-child {
@@ -233,7 +245,7 @@
 .facai-recent-section-title {
     font-size: 13px;
     font-weight: 600;
-    color: #718096;
+    color: #555;
     margin-bottom: 8px;
     text-transform: uppercase;
     letter-spacing: 0.5px;
@@ -244,7 +256,7 @@
     align-items: center;
     gap: 12px;
     padding: 8px 12px;
-    background: #f7fafc;
+    background: #fafafa;
     border-radius: 8px;
     margin-bottom: 8px;
     cursor: pointer;
@@ -252,7 +264,7 @@
 }
 
 .facai-recent-item:hover {
-    background: #edf2f7;
+    background: #f0f0f0;
 }
 
 .facai-recent-item:last-child {
@@ -269,21 +281,21 @@
 }
 
 .facai-recent-badge.highlight {
-    background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);
+    background: #ec4899;
 }
 
 .facai-recent-badge.website {
-    background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+    background: #16a34a;
 }
 
 .facai-recent-badge.http {
-    background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+    background: #d97706;
 }
 
 .facai-recent-url {
     flex: 1;
     font-size: 13px;
-    color: #4a5568;
+    color: #555;
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
@@ -297,7 +309,7 @@
 
 /* 刷新按钮 */
 #refreshOverview {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: #1a1a1a;
     color: #ffffff !important;
     border: none;
     padding: 8px 16px;
@@ -310,7 +322,7 @@
 
 #refreshOverview:hover {
     transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+    box-shadow: 0 4px 12px rgba(37, 99, 235, 0.4);
 }
 
 /* 响应式 */

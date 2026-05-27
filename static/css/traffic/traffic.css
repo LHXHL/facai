@@ -1,4 +1,4 @@
-.traffic-container {
+﻿.traffic-container {
     padding: 20px;
 }
 
@@ -14,7 +14,7 @@
     border-radius: 16px;
     margin-bottom: 20px;
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
-    border: 1px solid #e2e8f0;
+    border: 1px solid #e5e5e5;
 }
 
 .traffic-filter-row {
@@ -33,14 +33,14 @@
     padding: 20px;
     margin-bottom: 12px;
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
-    border: 1px solid #e2e8f0;
+    border: 1px solid #e5e5e5;
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .traffic-item:hover {
-    box-shadow: 0 12px 24px rgba(102, 126, 234, 0.15);
+    box-shadow: 0 12px 24px rgba(37, 99, 235, 0.15);
     transform: translateY(-4px);
-    border-color: rgba(102, 126, 234, 0.3);
+    border-color: rgba(37, 99, 235, 0.3);
 }
 
 .traffic-header {
@@ -69,31 +69,31 @@
 }
 
 .traffic-method.GET {
-    background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
+    background: #2563eb;
     color: #fff;
-    box-shadow: 0 4px 8px rgba(52, 152, 219, 0.3);
+    box-shadow: 0 4px 8px rgba(37, 99, 235, 0.3);
 }
 
 .traffic-method.POST {
-    background: linear-gradient(135deg, #27ae60 0%, #1e8449 100%);
+    background: #16a34a;
     color: #fff;
-    box-shadow: 0 4px 8px rgba(39, 174, 96, 0.3);
+    box-shadow: 0 4px 8px rgba(22, 163, 74, 0.3);
 }
 
 .traffic-method.PUT {
-    background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+    background: #d97706;
     color: #fff;
-    box-shadow: 0 4px 8px rgba(245, 158, 11, 0.3);
+    box-shadow: 0 4px 8px rgba(217, 119, 6, 0.3);
 }
 
 .traffic-method.DELETE {
-    background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+    background: #dc2626;
     color: #fff;
-    box-shadow: 0 4px 8px rgba(239, 68, 68, 0.3);
+    box-shadow: 0 4px 8px rgba(220, 38, 38, 0.3);
 }
 
 .traffic-meta {
-    color: #718096;
+    color: #555;
     font-size: 13px;
 }
 
@@ -109,7 +109,7 @@
     gap: 10px;
     margin-bottom: 20px;
     padding-bottom: 15px;
-    border-bottom: 1px solid #e2e8f0;
+    border-bottom: 1px solid #e5e5e5;
 }
 
 .view-mode-btn {
@@ -122,14 +122,14 @@
 }
 
 .view-mode-btn.active {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: #2563eb;
     color: #fff;
-    border-color: #667eea;
-    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+    border-color: #2563eb;
+    box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
 }
 
 .view-mode-btn:hover:not(.active) {
-    background: linear-gradient(135deg, #e2e8f0 0%, #cbd5e0 100%);
+    background: #e5e5e5;
     color: #2d3748;
 }
 
@@ -138,7 +138,7 @@
     background: #f8f9fa;
     padding: 20px;
     border-radius: 8px;
-    border: 1px solid #e2e8f0;
+    border: 1px solid #e5e5e5;
     overflow-x: auto;
     overflow-y: auto;
     max-height: 500px;
@@ -181,4 +181,33 @@
 
 .modal-body .mt-3 {
     margin-top: 0 !important;
+}
+
+.find-in-modal-btn {
+    margin-left: auto;
+}
+
+/* find-bar-modal 公共样式已在 head.css 中定义，此处仅保留差异 */
+.find-bar-modal {
+    padding: 8px 12px;
+    margin-bottom: 10px;
+}
+
+.load-full-hint-modal {
+    text-align: center;
+    padding: 16px;
+    color: #555;
+    font-size: 13px;
+    cursor: pointer;
+    border-top: 1px dashed #e5e5e5;
+}
+
+.load-full-hint-modal:hover {
+    color: #2d3748;
+    background: #fafafa;
+}
+
+.modal-pre-content {
+    max-height: 500px;
+    overflow: auto;
 }

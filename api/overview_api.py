@@ -12,6 +12,7 @@ from database.website_database import WebsiteDatabase
 from database.http_database import HttpDatabase
 from database.html_database import HtmlDatabase
 from database.highlight_database import HighlightDatabase
+from database.traffic_database import TrafficDatabase
 
 overview_api = Blueprint('overview_api', __name__)
 
@@ -55,12 +56,15 @@ def get_overview():
         html_db = HtmlDatabase(project_name)
         highlight_db = HighlightDatabase(project_name)
 
+        traffic_db = TrafficDatabase(project_name)
+
         overview = {
             'subdomains': subdomain_db.count_subdomains(),
             'websites': website_db.count_websites(),
             'http': http_db.count_http(),
             'html': html_db.count_html(),
             'highlights': highlight_db.count_highlights(),
+            'traffic': traffic_db.count_traffic(),
             'ip_cidr': 0,  # TODO: 添加IP C段数据库后实现
             'ip': 0  # TODO: 添加IP数据库后实现
         }
@@ -82,6 +86,11 @@ def get_overview_detail():
             return jsonify({
                 'success': True,
                 'detail': {
+                    'subdomain_pending': 0,
+                    'website_pending': 0,
+                    'http_pending': 0,
+                    'html_pending': 0,
+                    'traffic_pending': 0,
                     'subdomain_status': {},
                     'website_status': {},
                     'http_type': {},
@@ -93,9 +102,17 @@ def get_overview_detail():
         subdomain_db = SubdomainDatabase(project_name)
         website_db = WebsiteDatabase(project_name)
         http_db = HttpDatabase(project_name)
+        html_db = HtmlDatabase(project_name)
         highlight_db = HighlightDatabase(project_name)
+        traffic_db = TrafficDatabase(project_name)
 
         detail = {
+            # 待处理数量 (status=0)
+            'subdomain_pending': subdomain_db.count_by_status(0),
+            'website_pending': website_db.count_by_status(0),
+            'http_pending': http_db.count_by_status(0),
+            'html_pending': html_db.count_by_status(0),
+            'traffic_pending': traffic_db.count_by_status(0),
             'subdomain_status': subdomain_db.get_status_statistics() if hasattr(subdomain_db, 'get_status_statistics') else {},
             'website_status': website_db.get_status_statistics() if hasattr(website_db, 'get_status_statistics') else {},
             'http_type': {},  # TODO: 实现HTTP类型统计

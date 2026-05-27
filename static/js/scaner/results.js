@@ -181,7 +181,7 @@ function ScanerResultsModule() {
                 self.currentPage = page;
                 self.loadResults(container);
             }
-        });
+        }, paginationContainer);
         
         paginationContainer.html(paginationHtml);
     };
@@ -498,10 +498,7 @@ function ScanerResultsModule() {
     };
     
     this.escapeHtml = function(text) {
-        if (!text) return '';
-        var div = document.createElement('div');
-        div.textContent = text;
-        return div.innerHTML;
+        return FacaiUtils.escapeHtml(text);
     };
 }
 

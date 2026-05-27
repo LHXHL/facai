@@ -1,0 +1,296 @@
+/* ============================================================
+   表单信息编辑模块样式
+   ============================================================ */
+
+.spider-forms-container .forms-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+    gap: 12px;
+}
+
+.spider-forms-container .forms-header h2 {
+    margin: 0;
+    font-size: 18px;
+    font-weight: 600;
+    color: #333;
+}
+
+/* 提示信息 */
+.spider-forms-container .forms-tip {
+    background: #f5f5f5;
+    border: 1px solid #91d5ff;
+    border-radius: 6px;
+    padding: 12px 16px;
+    font-size: 13px;
+    color: #1a1a1a;
+    margin-bottom: 20px;
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+}
+
+.spider-forms-container .forms-tip-icon {
+    flex-shrink: 0;
+    font-size: 14px;
+}
+
+/* 表单分组卡片 */
+.spider-forms-container .form-group-card {
+    background: #fff;
+    border: 1px solid #e8e8e8;
+    border-radius: 8px;
+    margin-bottom: 16px;
+    overflow: hidden;
+}
+
+.spider-forms-container .form-group-header {
+    background: #fafafa;
+    padding: 12px 20px;
+    border-bottom: 1px solid #f0f0f0;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    cursor: pointer;
+    user-select: none;
+}
+
+.spider-forms-container .form-group-header h3 {
+    margin: 0;
+    font-size: 14px;
+    font-weight: 600;
+    color: #333;
+}
+
+.spider-forms-container .form-group-toggle {
+    font-size: 12px;
+    color: #999;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.spider-forms-container .form-group-body {
+    padding: 20px;
+}
+
+/* 字段行 */
+.spider-forms-container .field-row {
+    display: grid;
+    grid-template-columns: 180px 1fr 80px;
+    gap: 12px;
+    margin-bottom: 12px;
+    align-items: center;
+}
+
+.spider-forms-container .field-row:last-child {
+    margin-bottom: 0;
+}
+
+.spider-forms-container .field-name {
+    font-size: 13px;
+    color: #333;
+    font-weight: 500;
+}
+
+.spider-forms-container .field-name .field-required {
+    color: #dc2626;
+    margin-left: 2px;
+}
+
+.spider-forms-container .field-input {
+    position: relative;
+}
+
+.spider-forms-container .field-input input,
+.spider-forms-container .field-input textarea,
+.spider-forms-container .field-input select {
+    width: 100%;
+    padding: 7px 12px;
+    border: 1px solid #d9d9d9;
+    border-radius: 4px;
+    font-size: 13px;
+    color: #333;
+    box-sizing: border-box;
+    transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.spider-forms-container .field-input textarea {
+    resize: vertical;
+    min-height: 60px;
+    font-family: inherit;
+}
+
+.spider-forms-container .field-input input:focus,
+.spider-forms-container .field-input textarea:focus,
+.spider-forms-container .field-input select:focus {
+    outline: none;
+    border-color: #2563eb;
+    box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.1);
+}
+
+.spider-forms-container .field-actions {
+    display: flex;
+    justify-content: center;
+    gap: 6px;
+}
+
+/* 嵌套对象样式 */
+.spider-forms-container .field-row.nested {
+    margin-left: 16px;
+    padding-left: 12px;
+    border-left: 2px solid #f0f0f0;
+}
+
+.spider-forms-container .nested-label {
+    font-size: 12px;
+    color: #999;
+    font-style: italic;
+}
+
+/* 数组样式 */
+.spider-forms-container .array-item {
+    background: #fafafa;
+    border: 1px solid #f0f0f0;
+    border-radius: 4px;
+    padding: 10px 12px;
+    margin-bottom: 8px;
+    position: relative;
+}
+
+.spider-forms-container .array-item-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 8px;
+}
+
+.spider-forms-container .array-item-index {
+    font-size: 12px;
+    color: #999;
+    font-weight: 500;
+}
+
+/* 操作按钮 */
+.spider-forms-container .btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 7px 16px;
+    border-radius: 4px;
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    border: 1px solid transparent;
+    transition: all 0.2s;
+}
+
+.spider-forms-container .btn-primary { background: #2563eb; color: #fff; border-color: #2563eb; }
+.spider-forms-container .btn-primary:hover { background: #1d4ed8; }
+
+.spider-forms-container .btn-success { background: #16a34a; color: #fff; border-color: #16a34a; }
+.spider-forms-container .btn-success:hover { background: #15803d; }
+
+.spider-forms-container .btn-default { background: #fff; color: #333; border-color: #d9d9d9; }
+.spider-forms-container .btn-default:hover { color: #1a1a1a; border-color: #1a1a1a; }
+
+.spider-forms-container .btn-danger { background: #dc2626; color: #fff; border-color: #dc2626; }
+.spider-forms-container .btn-danger:hover { background: #ff7875; }
+
+.spider-forms-container .btn-sm { padding: 4px 10px; font-size: 12px; }
+
+.spider-forms-container .btn-icon {
+    padding: 4px 8px;
+    font-size: 12px;
+}
+
+/* 底部操作栏 */
+.spider-forms-container .forms-actions {
+    background: #fff;
+    border: 1px solid #e8e8e8;
+    border-radius: 8px;
+    padding: 16px 20px;
+    display: flex;
+    gap: 12px;
+    justify-content: flex-end;
+    position: sticky;
+    bottom: 0;
+}
+
+/* 保存成功提示 */
+.spider-forms-container .save-toast {
+    position: fixed;
+    bottom: 30px;
+    right: 30px;
+    background: #16a34a;
+    color: #fff;
+    padding: 10px 20px;
+    border-radius: 6px;
+    font-size: 14px;
+    display: none;
+    z-index: 1000;
+    animation: toast-in 0.3s ease;
+}
+
+.spider-forms-container .save-toast.show {
+    display: block;
+}
+
+@keyframes toast-in {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* 空状态 */
+.spider-forms-container .forms-empty {
+    text-align: center;
+    padding: 60px 20px;
+    color: #999;
+}
+
+.spider-forms-container .forms-empty-icon {
+    font-size: 48px;
+    margin-bottom: 16px;
+    opacity: 0.4;
+}
+
+/* 修改标记 */
+.spider-forms-container .field-input.modified input,
+.spider-forms-container .field-input.modified textarea {
+    border-color: #faad14;
+    background: #fffbe6;
+}
+
+/* JSON 编辑器 */
+.spider-forms-container #formsContent {
+    margin-bottom: 16px;
+}
+
+.spider-forms-container #jsonEditor {
+    width: 100%;
+    min-height: 500px;
+    padding: 16px;
+    border: 1px solid #d9d9d9;
+    border-radius: 8px;
+    font-family: 'Courier New', Consolas, monospace;
+    font-size: 13px;
+    line-height: 1.6;
+    color: #333;
+    background: #fafafa;
+    resize: vertical;
+    box-sizing: border-box;
+    outline: none;
+    transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.spider-forms-container #jsonEditor:focus {
+    border-color: #2563eb;
+    box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.1);
+    background: #fff;
+}
+
+.spider-forms-container #formatsBtn {
+    margin-top: 8px;
+}

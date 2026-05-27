@@ -106,6 +106,58 @@ class HtmlDatabase:
         """
         return self.add_html(html_data)
 
+    def import_html_batch(self, html_data_list):
+        """
+        批量导入HTML数据（$in 批量去重 + insert_many）
+        :param html_data_list: HTML数据列表 [{'html', 'html_md5', 'html_len', 'status'}]
+        :return: 成功插入的数量
+        """
+        if not self.collection_name or not html_data_list:
+            return 0
+
+        # $in 批量查询已存在的 md5
+        md5_list = [d.get('html_md5', '') for d in html_data_list if d.get('html_md5')]
+        existing_set = set()
+        if md5_list:
+            existing_docs = self.db_handler.find(
+                self.collection_name,
+                {'html_md5': {'$in': md5_list}},
+                projection={'html_md5': 1}
+            )
+            existing_set = {doc['html_md5'] for doc in existing_docs}
+
+        # 过滤出不存在的数据
+        truly_new = []
+        for d in html_data_list:
+            md5 = d.get('html_md5', '')
+            if md5 and md5 not in existing_set:
+                normalized = {
+                    'html': d.get('html', ''),
+                    'html_md5': md5,
+                    'html_len': d.get('html_len', 0),
+                    'time': d.get('time', time.strftime('%Y-%m-%d %H:%M:%S')),
+                    'status': d.get('status', 0)
+                }
+                truly_new.append(normalized)
+                existing_set.add(md5)  # 防止批内重复
+
+        # 批量插入
+        if truly_new:
+            try:
+                result = self.db_handler.insert_many(self.collection_name, truly_new)
+                return len(result.inserted_ids) if result else 0
+            except Exception:
+                # 回退到逐条插入
+                count = 0
+                for d in truly_new:
+                    try:
+                        if self.db_handler.insert_one(self.collection_name, d):
+                            count += 1
+                    except:
+                        pass
+                return count
+        return 0
+
     def delete_html(self, html_id):
         """删除HTML"""
         if not self.collection_name:
@@ -144,3 +196,9 @@ class HtmlDatabase:
             query = {}
 
         return self.db_handler.count_documents(self.collection_name, query)
+
+    def count_by_status(self, status=0):
+        """统计指定状态的HTML数量"""
+        if not self.collection_name:
+            return 0
+        return self.db_handler.count_documents(self.collection_name, {'status': status})

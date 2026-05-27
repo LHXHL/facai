@@ -79,6 +79,26 @@ class SQLInjectionScanner:
                 'description': 'ORDER BY注入'
             }
         }
+        
+        # 二次确认payload（降低误报：初次检测通过后，用不同payload再验证一次）
+        self.confirm_payloads = {
+            'int': {
+                'normal': '+0',          # 等价于原值，SQL中+0不影响结果
+                'abnormal': '+99999',    # 极大值，SQL中应导致异常
+            },
+            'string': {
+                'normal': "'LikE'",      # 同为SQL关键字，大小写不同
+                'abnormal': "'zzz'",     # 无意义字符串
+            },
+            'like': {
+                'normal': "%'oR'1",      # 另一个SQL关键字OR
+                'abnormal': "%'oRxd'1",  # 破坏关键字
+            },
+            'orderby': {
+                'normal': ',2',          # 另一个有效列号
+                'abnormal': ',998',      # 另一个无效列号
+            }
+        }
     
     def _calculate_similarities(self, baseline_html, test_html_list):
         """
@@ -170,6 +190,16 @@ class SQLInjectionScanner:
         
         # 判断逻辑：正常payload相似度 >= 0.95 且 异常payload相似度 < 0.95
         if similarity_normal >= 0.95 and similarity_abnormal < 0.95:
+            # 初次检测通过，进行二次确认（降低误报）
+            print(f"    [{test_type}] 初次检测通过，进行二次确认...")
+            confirmed = self._confirm_injection(
+                request_data, param_name, test_type, baseline_responses, send_request_func
+            )
+            if not confirmed:
+                print(f"    [{test_type}] 二次确认未通过，可能为误报，跳过")
+                return None
+            
+            # 二次确认通过，报告漏洞
             from service.Class_Core_Function import Class_Core_Function
             core_func = Class_Core_Function()
             
@@ -188,12 +218,71 @@ class SQLInjectionScanner:
                 'payload': normal_payload,
                 'similarity_normal': similarity_normal,
                 'similarity_abnormal': similarity_abnormal,
-                'evidence': f"正常payload相似度 {similarity_normal:.4f}, 异常payload相似度 {similarity_abnormal:.4f}",
+                'evidence': f"正常payload相似度 {similarity_normal:.4f}, 异常payload相似度 {similarity_abnormal:.4f}（已二次确认）",
                 'description': payload_config['description'],
                 'time': core_func.callback_time(0)
             }
         
         return None
+    
+    def _confirm_injection(self, request_data, param_name, test_type, baseline_responses, send_request_func):
+        """
+        二次确认注入检测（使用不同payload组合验证，降低误报）
+        
+        原理：如果真正的SQL注入存在，换一组等价的正常/异常payload
+        也应该表现出相同的相似/不相似特征
+        
+        :param request_data: 原始请求
+        :param param_name: 参数名
+        :param test_type: 测试类型
+        :param baseline_responses: 基准响应列表
+        :param send_request_func: 发送请求函数
+        :return: bool - 是否确认存在注入
+        """
+        confirm_config = self.confirm_payloads.get(test_type)
+        if not confirm_config:
+            return True  # 没有确认payload配置，默认通过
+        
+        # 提取基准HTML列表
+        baseline_html_list = []
+        if baseline_responses:
+            for resp in baseline_responses:
+                if resp is None:
+                    baseline_html_list.append("")
+                else:
+                    baseline_html_list.append(resp.text)
+        
+        normal_payload = confirm_config['normal']
+        abnormal_payload = confirm_config['abnormal']
+        
+        # 确认测试：正常payload
+        test_request_normal = self.param_handler.set_param_value(
+            request_data, param_name, normal_payload, mode=0
+        )
+        response_normal = send_request_func(test_request_normal)
+        html_normal = response_normal.text if response_normal else ""
+        
+        # 确认测试：异常payload
+        test_request_abnormal = self.param_handler.set_param_value(
+            request_data, param_name, abnormal_payload, mode=0
+        )
+        response_abnormal = send_request_func(test_request_abnormal)
+        html_abnormal = response_abnormal.text if response_abnormal else ""
+        
+        # 计算相似度
+        similarities = self._calculate_similarities(baseline_html_list, [html_normal, html_abnormal])
+        similarity_normal = similarities[-2]
+        similarity_abnormal = similarities[-1]
+        
+        print(f"    [确认-{test_type}] 正常payload '{normal_payload}': {similarity_normal:.4f}, 异常payload '{abnormal_payload}': {similarity_abnormal:.4f}")
+        
+        # 确认条件与初次检测相同：正常相似，异常不相似
+        if similarity_normal >= 0.95 and similarity_abnormal < 0.95:
+            print(f"    [确认-{test_type}] 二次确认通过！")
+            return True
+        
+        print(f"    [确认-{test_type}] 二次确认未通过")
+        return False
     
     def scan(self, request_data, params_list=None, send_request_func=None, anomaly_params=None, baseline_responses=None):
         """

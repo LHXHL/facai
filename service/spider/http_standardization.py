@@ -9,9 +9,39 @@ from service.Class_Core_Function import Class_Core_Function
 # 初始化核心函数类
 _core_func = Class_Core_Function()
 
-
-# 英文单词集合
+list_word_set=['404', '500', 'acl', 'actions', 'activemq', 'admin', 'aframe', 'agg', 'ansible', 'api', 'app', 'archicad', 'async', 'auth', 'autocad', 'avatar', 'avg', 'avro', 'babylonjs', 'bak', 'bandwidth', 'bashrc', 'benchmark', 'bitbucket', 'blkid', 'branches', 'bugfix', 'callback', 'captcha', 'cb', 'cd', 'cdn', 'cert', 'cfg', 'cgi', 'ci', 'cli', 'clojure', 'cms', 'cn', 'comp', 'comps', 'condarc', 'conf', 'config', 'cooked', 'cookie', 'cordova', 'cors', 'cp', 'cpp', 'crd', 'credentials', 'cron', 'crontab', 'crt', 'crud', 'csharp', 'csr', 'csrf', 'csv', 'ctx', 'datadog', 'debounce', 'debug', 'decr', 'demo', 'der', 'deserialize', 'df', 'diff', 'dist', 'django', 'dlq', 'dmesg', 'dns', 'dockerignore', 'docs', 'docx', 'download', 'dsa', 'dto', 'du', 'e2e', 'e2fsck', 'ecdsa', 'ecs', 'ed25519', 'elasticsearch', 'env', 'erlang', 'eslint', 'etc', 'etcd', 'eval', 'exec', 'extlinux', 'faq', 'fastapi', 'fdisk', 'figma', 'firewalld', 'fsck', 'ftp', 'gatsby', 'github', 'gitignore', 'gitlab', 'gmt', 'golang', 'gpg', 'grafana', 'graphql', 'grpc', 'gui', 'guid', 'h5', 'haskell', 'hdparm', 'hmr', 'hooks', 'hotfix', 'htop', 'http', 'https', 'i18n', 'idx', 'iftop', 'impl', 'incr', 'indesign', 'info', 'ini', 'iotop', 'ip', 'iptables', 'isolinux', 'istio', 'javascript', 'jenkins', 'jira', 'jks', 'journalctl', 'js', 'json', 'jsp', 'jwt', 'k8s', 'kb', 'keystore', 'kotlin', 'kubernetes', 'kv', 'l10n', 'lang', 'lb', 'lib', 'lilo', 'linkerd', 'logrotate', 'logs', 'lru', 'lsblk', 'lsof', 'lua', 'lvm', 'matlab', 'mdadm', 'memcached', 'memtest', 'mgr', 'misc', 'mkfs', 'mongodb', 'mq', 'mqtt', 'msg', 'mutations', 'mutex', 'mv', 'mvc', 'mysql', 'nagios', 'nestjs', 'netstat', 'newrelic', 'nextjs', 'nginx', 'nload', 'npmrc', 'ns', 'ntfsfix', 'nuxtjs', 'nvme', 'oauth', 'obj', 'openapi', 'ops', 'options', 'orig', 'orm', 'oss', 'otp', 'p12', 'p5js', 'payload', 'pdf', 'pem', 'perl', 'perms', 'pfx', 'pgp', 'photoshop', 'php', 'pid', 'placeholder', 'plugin', 'polyfill', 'postgres', 'ppt', 'pptx', 'preferences', 'prettier', 'prev', 'privs', 'proc', 'processing', 'protobuf', 'prv', 'ps', 'pwd', 'pxelinux', 'qa', 'rabbitmq', 'rbac', 'rc', 'reactnative', 'readonly', 'redis', 'refactor', 'releases', 'repo', 'required', 'resize2fs', 'revit', 'rfc', 'rm', 'robots', 'rollup', 'rpc', 'rsa', 'rsync', 'runtime', 'scp', 'sdk', 'sdparm', 'selinux', 'seo', 'seq', 'settings', 'sftp', 'sitemap', 'sketchup', 'smartctl', 'snapshots', 'solidworks', 'solr', 'spinlock', 'splunk', 'sqlite', 'sqlserver', 'src', 'srv', 'ss', 'ssh', 'ssl', 'sso', 'ssr', 'stat', 'stringify', 'svc', 'svg', 'swp', 'sys', 'syslinux', 'systemctl', 'tags', 'teams', 'terraform', 'threejs', 'timeout', 'tls', 'tmp', 'toml', 'traceroute', 'troubleshoot', 'truststore', 'ts', 'ttl', 'tutorialapi', 'txt', 'tz', 'uat', 'ufw', 'ui', 'uid', 'umount', 'unescape', 'upload', 'upsert', 'url', 'utc', 'util', 'utils', 'uuid', 'ux', 'v0.1', 'v1', 'v1.0', 'v1.0.0', 'v1.0.1', 'v1.1', 'v1.2', 'v1.3', 'v2', 'v2.0', 'v3', 'var', 'vimrc', 'vite', 'vnstat', 'vo', 'vpc', 'vue', 'webgl', 'webgpu', 'webhook', 'webpack', 'wf', 'wget', 'wiki', 'wp', 'ws', 'wss', 'xamarin', 'xfs_repair', 'xls', 'xlsx', 'xml', 'yaml', 'yarnrc', 'yml', 'zabbix', 'zeplin', 'zeromq', 'zookeeper', 'zshrc']
+# 英文单词集合（NLTK）
 _word_list = set(words.words()) if hasattr(words, 'words') else set()
+
+# 手动词表集合（小写），优先级高于NLTK，不区分大小写
+_manual_word_set = set(w.lower() for w in list_word_set)
+
+# 驼峰命名拆分正则：在每个大写字母前插入空格（保留连续大写字母作为一个词）
+_camel_split_re = re.compile(r'([A-Z]?[a-z]+|[A-Z]+(?=[A-Z][a-z]|$))')
+
+
+def _split_camel_case(word: str) -> list:
+    """
+    拆分驼峰命名字符串为单词列表
+    例如: WebLoginTrpc → ['Web', 'Login', 'Trpc']
+         NewRefresh → ['New', 'Refresh']
+         trpc → ['trpc']
+    """
+    if not word:
+        return []
+    
+    # 先尝试用正则拆分
+    parts = _camel_split_re.findall(word)
+    if parts:
+        return parts
+    
+    # 如果正则没匹配到，尝试用下划线/点号分割
+    if '_' in word:
+        return word.split('_')
+    if '.' in word:
+        return word.split('.')
+    
+    return [word]
 
 
 def _check_string_type(text):
@@ -96,7 +126,7 @@ def callback_pathname(pathname: str) -> str:
     处理路径
     /admin/123/demo.jsp → /admin/{Int-3}/demo.jsp
     /admin/hello/world → /admin/hello/world (保留英文单词)
-    /trpc.video.account/NewRefresh → /{String-18}/NewRefresh
+    /trpc.video.account/NewRefresh → /trpc-video-account/NewRefresh
     """
     # 使用 os.path.splitext 判断文件扩展名（与 Class_Core_Function.callback_file_extensions 一致）
     type_file = ''
@@ -110,14 +140,90 @@ def callback_pathname(pathname: str) -> str:
     
     # 分割路径为各个段
     list_path = []
+    # 分隔符正则：同时按 . _ - 拆分
+    _sep_re = re.compile(r'[._\-]+')
+    
+    def _is_valid_word(word: str) -> bool:
+        """判断是否为有效单词，手动词表优先于NLTK，不区分大小写"""
+        w = word.lower()
+        return w in _manual_word_set or w in _word_list
+    
+    def _process_segment(segment: str, depth: int = 0) -> str:
+        """
+        递归处理路径段，拆分所有分隔符和驼峰命名
+        返回用 - 拼接的字符串
+        核心规则：只有词表（手动+NLTK）中且长度>=2的单词才原样输出，其余全部结构化
+        拆分超过3个部分 → 整体参数化
+        """
+        if not segment:
+            return ''
+        
+        # 限制递归深度
+        if depth > 3:
+            return f'{{{_check_string_type(segment)}-{_callback_length(segment)}}}'
+        
+        # 1. 按 . _ - 同时拆分
+        if _sep_re.search(segment):
+            sub_tokens = [t for t in _sep_re.split(segment) if t]
+            # 拆分超过3个部分 → 整体参数化
+            if len(sub_tokens) > 3:
+                return f'{{{_check_string_type(segment)}-{_callback_length(segment)}}}'
+            results = []
+            for t in sub_tokens:
+                r = _process_segment(t, depth + 1)
+                if r:
+                    results.append(r)
+            return '-'.join(results)
+        
+        # 2. 手动词表优先：在手动词表中 → 直接保留
+        if segment.lower() in _manual_word_set:
+            return segment
+        
+        # 3. 纯数字 → {Int-N}
+        if segment.isdigit():
+            return f'{{Int-{len(segment)}}}'
+        
+        # 4. 混合数字字母 → 整体参数化
+        if any(c.isdigit() for c in segment) and any(c.isalpha() for c in segment):
+            return f'{{{_check_string_type(segment)}-{_callback_length(segment)}}}'
+        
+        # 4. 有大写字母，尝试驼峰拆分
+        if any(c.isupper() for c in segment):
+            camel_parts = _split_camel_case(segment)
+            # 驼峰拆分超过3个部分 → 整体参数化
+            if len(camel_parts) > 3:
+                return f'{{{_check_string_type(segment)}-{_callback_length(segment)}}}'
+            # 统计有效单词（词表中且长度>=2）
+            word_count = sum(1 for cp in camel_parts if _is_valid_word(cp) and len(cp) >= 2)
+            non_word_count = len(camel_parts) - word_count
+            # 有效单词数 <= 非单词数 → 整体参数化
+            if word_count <= non_word_count:
+                return f'{{{_check_string_type(segment)}-{_callback_length(segment)}}}'
+            # 否则逐个处理：词表单词保留，其余结构化
+            results = []
+            for cp in camel_parts:
+                if _is_valid_word(cp) and len(cp) >= 2:
+                    results.append(cp)
+                else:
+                    results.append(f'{{{_check_string_type(cp)}-{len(cp)}}}')
+            return '-'.join(results)
+        
+        # 5. 纯小写字母：词表中 → 保留，否则参数化
+        if _is_valid_word(segment) and len(segment) >= 2:
+            return segment
+        
+        return f'{{{_check_string_type(segment)}-{_callback_length(segment)}}}'
+    
     for line in path_without_ext.split('/'):
         if line == '':
             continue
-        text_type = _check_string_type(line)
-        # 保留有意义的英文单词
-        if text_type != 'Int' and len(line) > 2 and len(line) < 30 and '-' not in line and line.lower() in _word_list:
-            list_path.append(line)
+        
+        processed_segment = _process_segment(line)
+        
+        if processed_segment:
+            list_path.append(processed_segment)
         else:
+            text_type = _check_string_type(line)
             length = _callback_length(line)
             list_path.append(f'{{{text_type}-{length}}}')
 
@@ -170,7 +276,11 @@ def callback_request_param_list(http_request: dict, type_model: int = 0) -> list
         method = http_request.get('method', 'GET').upper()
         if method != 'GET':
             body = http_request.get('body', '')
-            if isinstance(body, dict):
+            body_encoding = http_request.get('body_encoding', 'plain')
+            # base64编码的body（如multipart文件上传），无法解析为参数，跳过
+            if body_encoding == 'base64':
+                pass
+            elif isinstance(body, dict):
                 # JSON body（已经是dict类型）
                 list_param.extend(_process_json_param(body))
             elif isinstance(body, str) and body:
@@ -311,7 +421,12 @@ def standardize_request(http_request: dict, type_model: int = 1) -> dict:
             # JS文件：直接返回原始URL（不含查询参数）
             url_generalization = url_path
             param_feature_str = ''
-            key = _core_func.md5_convert(f"{method}:{url_path}")
+            # JS文件可能被多个站点引入，相同URL不同origin应视为不同记录，避免去重后查不到
+            origin = (http_request.get('headers', {}).get('origin', '') or '').rstrip('/')
+            key_str = f"{method}:{url_path}"
+            if origin:
+                key_str += f":{origin}"
+            key = _core_func.md5_convert(key_str)
 
             return {
                 'url': url_path,
@@ -378,8 +493,8 @@ def standardize_request(http_request: dict, type_model: int = 1) -> dict:
                     hash_params.append(f"{line}={_check_string_type(key)}-{_callback_length(key)}")
                 hash_params.sort()
 
-            # 构建hash标准化字符串
-            hash_generalization = '#' + hash_path
+            # 构建hash标准化字符串（hash路径需要保留前导/）
+            hash_generalization = '#/' + hash_path if hash_path else '#'
             if hash_params:
                 hash_generalization += '?' + '&'.join(hash_params)
 
@@ -416,6 +531,12 @@ def standardize_request(http_request: dict, type_model: int = 1) -> dict:
         # 获取文件扩展名
         file_extension = _core_func.callback_file_extensions(url)
 
+        # JS文件异常路径也需纳入origin
+        origin = (http_request.get('headers', {}).get('origin', '') or '').rstrip('/')
+        fallback_key_str = f"{method}:{url}"
+        if file_extension == '.js' and origin:
+            fallback_key_str += f":{origin}"
+
         return {
             'url': url,
             'method': method,
@@ -424,7 +545,7 @@ def standardize_request(http_request: dict, type_model: int = 1) -> dict:
             'url_generalization': url,
             'param_feature': '',
             'file_extension': file_extension,
-            'key': _core_func.md5_convert(f"{method}:{url}")
+            'key': _core_func.md5_convert(fallback_key_str)
         }
 
 

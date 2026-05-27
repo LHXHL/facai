@@ -15,7 +15,9 @@
 import socket
 import os
 import threading
+import asyncio
 import dns.resolver
+import dns.asyncresolver
 import nmap
 from database.subdomain_database import SubdomainDatabase
 from service.Class_Core_Function import Class_Core_Function
@@ -39,6 +41,16 @@ class SubdomainCollector:
         self.domain_list = self.project_config.get('domain_list', []) if self.project_config else []
         # 泛解析域名黑名单缓存
         self.wildcard_domains = set()
+        # 复用 Resolver 实例（同步）
+        self._sync_resolver = dns.resolver.Resolver()
+        self._sync_resolver.nameservers = self.dns_servers[0] if self.dns_servers else ['8.8.8.8']
+        self._sync_resolver.timeout = self.timeout
+        self._sync_resolver.lifetime = self.timeout
+        # 复用 Resolver 实例（异步）
+        self._async_resolver = dns.asyncresolver.Resolver()
+        self._async_resolver.nameservers = self.dns_servers[0] if self.dns_servers else ['8.8.8.8']
+        self._async_resolver.timeout = self.timeout
+        self._async_resolver.lifetime = self.timeout
 
     def _parse_ports(self, port_string):
         """
@@ -61,37 +73,6 @@ class SubdomainCollector:
                 # 单端口
                 ports.append(int(part))
         return ports
-
-    def _extract_domain(self, subdomain):
-        """
-        从子域名中提取主域名，基于project_config中的domain_list进行匹配
-
-        Args:
-            subdomain: 如 "www.molun.com"
-
-        Returns:
-            str: 匹配的主域名 如 "molun.com"，未匹配则返回原值
-        """
-        subdomain = subdomain.lower()
-        
-        if not self.domain_list:
-            # 如果没有domain_list，使用默认逻辑（取后两级）
-            parts = subdomain.split('.')
-            if len(parts) >= 2:
-                return '.'.join(parts[-2:])
-            return subdomain
-
-        # 从最长匹配开始（匹配更精确的域名优先）
-        for domain in sorted(self.domain_list, key=len, reverse=True):
-            domain_lower = domain.lower()
-            if subdomain.endswith('.' + domain_lower) or subdomain == domain_lower:
-                return domain_lower
-
-        # 未匹配到任何domain_list，返回默认后两级
-        parts = subdomain.split('.')
-        if len(parts) >= 2:
-            return '.'.join(parts[-2:])
-        return subdomain
 
     def _get_parent_domain(self, subdomain):
         """
@@ -140,19 +121,25 @@ class SubdomainCollector:
         test_subdomain = f"{random_prefix}.{domain}"
 
         try:
-            resolver = dns.resolver.Resolver()
-            resolver.nameservers = self.dns_servers[0]
-            resolver.timeout = 3
-            resolver.lifetime = 3
+            # 复用 Resolver 实例，临时调整超时
+            original_timeout = self._sync_resolver.timeout
+            original_lifetime = self._sync_resolver.lifetime
+            self._sync_resolver.timeout = 3
+            self._sync_resolver.lifetime = 3
 
             # 查询A记录
-            answer = resolver.resolve(test_subdomain, 'A')
+            answer = self._sync_resolver.resolve(test_subdomain, 'A')
             if answer and len(answer) > 0:
                 # 随机子域名解析到了IP，说明开启了泛解析
                 self.wildcard_domains.add(domain)
+                self._sync_resolver.timeout = original_timeout
+                self._sync_resolver.lifetime = original_lifetime
                 return True
+            self._sync_resolver.timeout = original_timeout
+            self._sync_resolver.lifetime = original_lifetime
         except:
-            pass
+            self._sync_resolver.timeout = self.timeout
+            self._sync_resolver.lifetime = self.timeout
 
         return False
 
@@ -251,52 +238,69 @@ class SubdomainCollector:
             'wildcard_domains': wildcard_detected
         }
 
-    def _query_dns(self, subdomain, dns_server):
+    async def _query_dns_async(self, subdomain):
         """
-        查询DNS记录
+        异步并行查询DNS记录（A/CNAME/AAAA 同时查询）
 
         Args:
             subdomain: 子域名
-            dns_server: DNS服务器列表 [primary, secondary]
 
         Returns:
             list: DNS记录列表
         """
         dns_data = []
-        try:
-            resolver = dns.resolver.Resolver()
-            resolver.nameservers = dns_server
-            resolver.timeout = self.timeout
-            resolver.lifetime = self.timeout
 
-            # 查询 A 记录
+        async def _resolve(record_type):
+            """查询单条记录类型"""
             try:
-                answer = resolver.resolve(subdomain, 'A')
+                answer = await self._async_resolver.resolve(subdomain, record_type)
+                records = []
                 for rdata in answer:
-                    dns_data.append({'A': str(rdata)})
-            except:
-                pass
+                    records.append({record_type: str(rdata)})
+                return records
+            except Exception:
+                return []
 
-            # 查询 CNAME 记录
-            try:
-                answer = resolver.resolve(subdomain, 'CNAME')
-                for rdata in answer:
-                    dns_data.append({'CNAME': str(rdata)})
-            except:
-                pass
-
-            # 查询 AAAA 记录
-            try:
-                answer = resolver.resolve(subdomain, 'AAAA')
-                for rdata in answer:
-                    dns_data.append({'AAAA': str(rdata)})
-            except:
-                pass
-
-        except Exception as e:
-            pass
+        # A/CNAME/AAAA 三条记录并行查询
+        results = await asyncio.gather(
+            _resolve('A'),
+            _resolve('CNAME'),
+            _resolve('AAAA')
+        )
+        for result in results:
+            dns_data.extend(result)
 
         return dns_data
+
+    def _query_dns(self, subdomain, dns_server):
+        """
+        查询DNS记录（内部使用异步并行查询，兼容原接口）
+
+        Args:
+            subdomain: 子域名
+            dns_server: DNS服务器列表 [primary, secondary]（用于临时切换）
+
+        Returns:
+            list: DNS记录列表
+        """
+        # 临时切换 nameservers
+        original_ns = self._async_resolver.nameservers
+        self._async_resolver.nameservers = dns_server
+        try:
+            loop = asyncio.get_event_loop()
+            if loop.is_running():
+                # 已有事件循环在运行（如在 Flask 线程中），用新线程跑
+                import concurrent.futures
+                with concurrent.futures.ThreadPoolExecutor(max_workers=1) as executor:
+                    future = executor.submit(asyncio.run, self._query_dns_async(subdomain))
+                    return future.result()
+            else:
+                return loop.run_until_complete(self._query_dns_async(subdomain))
+        except RuntimeError:
+            # 没有事件循环，创建新的
+            return asyncio.run(self._query_dns_async(subdomain))
+        finally:
+            self._async_resolver.nameservers = original_ns
 
     def _query_dns_multi_server(self, subdomain):
         """
@@ -333,13 +337,8 @@ class SubdomainCollector:
         time_now = self.core_function.callback_time(0)
 
         try:
-            # 获取IP地址
-            resolver = dns.resolver.Resolver()
-            resolver.nameservers = self.dns_servers[0]
-            resolver.timeout = self.timeout
-            resolver.lifetime = self.timeout
-
-            answer = resolver.resolve(subdomain, 'A')
+            # 获取IP地址（复用 Resolver 实例）
+            answer = self._sync_resolver.resolve(subdomain, 'A')
             ip_address = str(answer[0])
 
             # 使用nmap扫描端口
@@ -417,7 +416,7 @@ class SubdomainCollector:
 
             return {
                 'subdomain': subdomain,
-                'domain': self._extract_domain(subdomain).lower(),
+                'domain': self.core_function.extract_domain(subdomain),
                 'time': self.core_function.callback_time(0),
                 'port_list': port_list,
                 'dns_data': dns_data,
@@ -446,15 +445,16 @@ class SubdomainCollector:
             # 统一转为小写
             subdomains = [s.lower() for s in subdomains if s]
             
-            # 1. 数据库去重处理 - 直接查询判断是否存在
+            # 1. 数据库去重处理 - $in 批量查询
             new_subdomains = []
-            for subdomain in subdomains:
-                existing = self.subdomain_db.db_handler.find_one(
+            if subdomains:
+                existing_docs = self.subdomain_db.db_handler.find(
                     self.subdomain_db.collection_name,
-                    {'subdomain': subdomain}
+                    {'subdomain': {'$in': subdomains}},
+                    projection={'subdomain': 1}
                 )
-                if not existing:
-                    new_subdomains.append(subdomain)
+                existing_set = {doc['subdomain'] for doc in existing_docs}
+                new_subdomains = [s for s in subdomains if s not in existing_set]
 
             if not new_subdomains:
                 return {
@@ -492,17 +492,26 @@ class SubdomainCollector:
 
             self.core_function.threadpool_Core_Function(process_wrapper, valid_subdomains, self.http_thread)
 
-            # 4. 保存到数据库
+            # 4. 保存到数据库（批量插入）
             saved_count = 0
-            for data in processed_data:
+            if processed_data:
                 try:
-                    self.subdomain_db.db_handler.insert_one(
+                    result = self.subdomain_db.db_handler.insert_many(
                         self.subdomain_db.collection_name,
-                        data
+                        processed_data
                     )
-                    saved_count += 1
-                except:
-                    pass
+                    saved_count = len(result.inserted_ids) if result else 0
+                except Exception:
+                    # 批量插入失败，回退到逐条插入
+                    for data in processed_data:
+                        try:
+                            self.subdomain_db.db_handler.insert_one(
+                                self.subdomain_db.collection_name,
+                                data
+                            )
+                            saved_count += 1
+                        except:
+                            pass
 
             return {
                 'success': True,

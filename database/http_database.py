@@ -41,6 +41,8 @@ class HttpDatabase:
                 query = {'subdomain': {'$regex': search_keyword, '$options': 'i'}}
             elif search_type == 'key':
                 query = {'key': {'$regex': search_keyword, '$options': 'i'}}
+            elif search_type == 'html_md5':
+                query = {'html_md5': {'$regex': search_keyword, '$options': 'i'}}
             else:
                 query = {'$or': [
                     {'url': {'$regex': search_keyword, '$options': 'i'}},
@@ -124,6 +126,38 @@ class HttpDatabase:
             return 0
         return self.db_handler.count_documents(self.collection_name, {})
 
+    def merge_tags(self, page_tags):
+        """合并页面标签到 http 表的 tag 字段（去重追加）
+
+        Args:
+            page_tags: dict, {url: [tag1, tag2, ...]}
+
+        Returns:
+            int: 更新的文档数
+        """
+        if not self.collection_name or not page_tags:
+            return 0
+
+        tag_updated = 0
+        for url, new_tags in page_tags.items():
+            if not new_tags:
+                continue
+            try:
+                doc = self.db_handler.find_one(self.collection_name, {'url': url})
+                if doc:
+                    existing_tags = doc.get('tag', []) or []
+                    merged = list(set(existing_tags + new_tags))
+                    if len(merged) > len(existing_tags):
+                        self.db_handler.update_one(
+                            self.collection_name,
+                            {'_id': doc['_id']},
+                            {'tag': merged}
+                        )
+                        tag_updated += 1
+            except Exception:
+                pass
+        return tag_updated
+
     def search_http_count(self, search_keyword, search_type='url'):
         """搜索结果数量"""
         if not self.collection_name:
@@ -136,6 +170,8 @@ class HttpDatabase:
                 query = {'title': {'$regex': search_keyword, '$options': 'i'}}
             elif search_type == 'subdomain':
                 query = {'subdomain': {'$regex': search_keyword, '$options': 'i'}}
+            elif search_type == 'html_md5':
+                query = {'html_md5': {'$regex': search_keyword, '$options': 'i'}}
             else:
                 query = {'$or': [
                     {'url': {'$regex': search_keyword, '$options': 'i'}},
@@ -146,3 +182,9 @@ class HttpDatabase:
             query = {}
 
         return self.db_handler.count_documents(self.collection_name, query)
+
+    def count_by_status(self, status=0):
+        """统计指定状态的HTTP数量"""
+        if not self.collection_name:
+            return 0
+        return self.db_handler.count_documents(self.collection_name, {'status': status})

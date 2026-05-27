@@ -49,17 +49,15 @@ def get_subdomains():
     sort_by = request.args.get('sort_by')
     sort_order = int(request.args.get('sort_order', 1))
     search_keyword = request.args.get('search_keyword', '')
+    search_type = request.args.get('search_type', 'subdomain')
 
-    # 创建数据库实例
     subdomain_db = SubdomainDatabase(project_name)
 
-    # 获取子域名数据
-    subdomains = subdomain_db.get_all_subdomains(page, page_size, sort_by, sort_order, search_keyword)
+    subdomains = subdomain_db.get_all_subdomains(page, page_size, sort_by, sort_order, search_keyword, search_type)
     subdomains = convert_objectid_to_str(subdomains)
 
-    # 获取总数
     if search_keyword:
-        total = subdomain_db.search_subdomains_count(search_keyword)
+        total = subdomain_db.search_subdomains_count(search_keyword, search_type)
     else:
         total = subdomain_db.count_subdomains()
 

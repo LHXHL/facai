@@ -1,0 +1,2 @@
+{"url": "http://192.168.0.1/cgi-bin/", "method": "GET", "status_code": 403, "length": 571, "elapsed": 9, "payload": "cgi-bin/", "payload2": "", "error": null}
+{"url": "http://192.168.0.1/cgi-bin/luci/web", "method": "GET", "status_code": 200, "length": 74134, "elapsed": 473, "payload": "cgi-bin/luci/web", "payload2": "", "error": null}

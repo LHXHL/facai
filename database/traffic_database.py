@@ -1,4 +1,5 @@
 from .mongodb_handler import MongoDBHandler
+import re
 import time
 
 class TrafficDatabase:
@@ -16,9 +17,10 @@ class TrafficDatabase:
         query = {}
         projection = None
 
-        # 如果有搜索条件，添加URL搜索
+        # 如果有搜索条件，添加URL搜索（转义正则特殊字符，避免URL中的?&=.+等被当作元字符）
         if search_url and search_url.strip():
-            query = {'url': {'$regex': search_url, '$options': 'i'}}
+            escaped_url = re.escape(search_url.strip())
+            query = {'url': {'$regex': escaped_url, '$options': 'i'}}
 
         # 计算跳过的记录数
         skip = (page - 1) * page_size
@@ -127,3 +129,15 @@ class TrafficDatabase:
             {'scaner_status': 1}
         )
         return result is not None
+
+    def count_by_scaner_status(self, scaner_status=0):
+        """统计指定扫描状态的流量数量"""
+        if not self.collection_name:
+            return 0
+        return self.db_handler.count_documents(self.collection_name, {'scaner_status': scaner_status})
+
+    def count_by_status(self, status=0):
+        """统计指定状态的流量数量 (status=0为待处理)"""
+        if not self.collection_name:
+            return 0
+        return self.db_handler.count_documents(self.collection_name, {'status': status})

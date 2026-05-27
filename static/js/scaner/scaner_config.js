@@ -364,37 +364,13 @@ function ScanerConfigModule() {
 
     // 复制到剪贴板
     this.copyToClipboard = function(text) {
-        if (navigator.clipboard && navigator.clipboard.writeText) {
-            navigator.clipboard.writeText(text).then(function() {
-                this.showToast('复制成功！');
-            }.bind(this)).catch(function() {
-                this.fallbackCopy(text);
-            }.bind(this));
-        } else {
-            this.fallbackCopy(text);
-        }
+        FacaiUtils.copyToClipboard(text);
     };
 
-    // 兼容旧浏览器的复制方法
     this.fallbackCopy = function(text) {
-        var textarea = document.createElement('textarea');
-        textarea.value = text;
-        textarea.style.position = 'fixed';
-        textarea.style.opacity = '0';
-        document.body.appendChild(textarea);
-        textarea.select();
-
-        try {
-            document.execCommand('copy');
-            this.showToast('复制成功！');
-        } catch (err) {
-            alert('复制失败，请手动复制');
-        }
-
-        document.body.removeChild(textarea);
+        FacaiUtils.fallbackCopy(text);
     };
 
-    // 显示/隐藏表单
     this.toggleForm = function(show) {
         var form = $('#clipboardForm');
         if (show) {
@@ -406,28 +382,12 @@ function ScanerConfigModule() {
         }
     };
 
-    // 显示 Toast 提示
     this.showToast = function(message) {
-        var toast = $('<div class="scaner-config-toast">' + message + '</div>');
-        $('body').append(toast);
-
-        setTimeout(function() {
-            toast.addClass('show');
-        }, 10);
-
-        setTimeout(function() {
-            toast.removeClass('show');
-            setTimeout(function() {
-                toast.remove();
-            }, 300);
-        }, 2000);
+        FacaiUtils.showToast(message);
     };
 
-    // HTML 转义
     this.escapeHtml = function(text) {
-        var div = document.createElement('div');
-        div.textContent = text;
-        return div.innerHTML;
+        return FacaiUtils.escapeHtml(text);
     };
 
     // 绑定事件

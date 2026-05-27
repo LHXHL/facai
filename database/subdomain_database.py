@@ -17,20 +17,23 @@ class SubdomainDatabase:
         # 使用 project_{name}_domain 表名（参考数据库结构文档）
         self.collection_name = f"project_{project_name}_domain" if project_name else None
 
-    def get_all_subdomains(self, page=1, page_size=100, sort_by=None, sort_order=1, search_keyword=''):
-        """获取所有子域名数据，支持分页、排序和搜索"""
+    def get_all_subdomains(self, page=1, page_size=100, sort_by=None, sort_order=1, search_keyword='', search_type='subdomain'):
         if not self.collection_name:
             return []
 
-        # 构建查询条件
         query = {}
         if search_keyword and search_keyword.strip():
-            query = {
-                '$or': [
-                    {'subdomain': {'$regex': search_keyword, '$options': 'i'}},
-                    {'domain': {'$regex': search_keyword, '$options': 'i'}}
-                ]
-            }
+            if search_type == 'port':
+                query = {'port_list.port': {'$regex': search_keyword, '$options': 'i'}}
+            elif search_type == 'ip':
+                query = {'dns_data.A': {'$regex': search_keyword, '$options': 'i'}}
+            else:
+                query = {
+                    '$or': [
+                        {'subdomain': {'$regex': search_keyword, '$options': 'i'}},
+                        {'domain': {'$regex': search_keyword, '$options': 'i'}}
+                    ]
+                }
 
         projection = None
 
@@ -129,31 +132,45 @@ class SubdomainDatabase:
             {'$set': update_data}
         )
 
-    def search_subdomains(self, keyword):
-        """搜索子域名"""
+    def search_subdomains(self, keyword, search_type='subdomain'):
         if not self.collection_name:
             return []
 
-        query = {
-            '$or': [
-                {'subdomain': {'$regex': keyword, '$options': 'i'}},
-                {'domain': {'$regex': keyword, '$options': 'i'}},
-            ]
-        }
+        if search_type == 'port':
+            query = {'port_list.port': {'$regex': keyword, '$options': 'i'}}
+        elif search_type == 'ip':
+            query = {'dns_data.A': {'$regex': keyword, '$options': 'i'}}
+        else:
+            query = {
+                '$or': [
+                    {'subdomain': {'$regex': keyword, '$options': 'i'}},
+                    {'domain': {'$regex': keyword, '$options': 'i'}},
+                ]
+            }
 
         subdomains = self.db_handler.find(self.collection_name, query)
         return subdomains
 
-    def search_subdomains_count(self, keyword):
-        """搜索子域名的数量"""
+    def search_subdomains_count(self, keyword, search_type='subdomain'):
         if not self.collection_name:
             return 0
 
-        query = {
-            '$or': [
-                {'subdomain': {'$regex': keyword, '$options': 'i'}},
-                {'domain': {'$regex': keyword, '$options': 'i'}},
-            ]
-        }
+        if search_type == 'port':
+            query = {'port_list.port': {'$regex': keyword, '$options': 'i'}}
+        elif search_type == 'ip':
+            query = {'dns_data.A': {'$regex': keyword, '$options': 'i'}}
+        else:
+            query = {
+                '$or': [
+                    {'subdomain': {'$regex': keyword, '$options': 'i'}},
+                    {'domain': {'$regex': keyword, '$options': 'i'}},
+                ]
+            }
 
         return self.db_handler.count_documents(self.collection_name, query)
+
+    def count_by_status(self, status=0):
+        """统计指定状态的子域名数量"""
+        if not self.collection_name:
+            return 0
+        return self.db_handler.count_documents(self.collection_name, {'status': status})

@@ -1,0 +1,336 @@
+.agent-task-panel {
+    background: #ffffff;
+    border: 1px solid #e0e0e0;
+    border-radius: 10px;
+    margin: 8px 0;
+    overflow: hidden;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+}
+
+.at-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 16px;
+    background: #fafafa;
+    border-bottom: 1px solid #eee;
+}
+
+.at-header-left {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    min-width: 0;
+    flex: 1;
+}
+
+.at-status-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: #3b82f6;
+    flex-shrink: 0;
+}
+
+.at-status-dot.at-dot-pulse {
+    animation: at-pulse 1.2s ease-in-out infinite;
+}
+
+.at-status-dot.at-dot-done {
+    animation: none;
+}
+
+@keyframes at-pulse {
+    0%, 100% { opacity: 1; box-shadow: 0 0 0 0 rgba(59, 130, 246, 0.4); }
+    50% { opacity: 0.6; box-shadow: 0 0 0 6px rgba(59, 130, 246, 0); }
+}
+
+.at-title {
+    font-size: 13px;
+    font-weight: 600;
+    color: #1a1a1a;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.at-status-badge {
+    font-size: 11px;
+    font-weight: 600;
+    padding: 2px 8px;
+    border-radius: 10px;
+    flex-shrink: 0;
+    color: #3b82f6;
+    background: #eff6ff;
+}
+
+.at-status-running {
+    animation: at-badge-pulse 2s ease-in-out infinite;
+}
+
+@keyframes at-badge-pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.7; }
+}
+
+.at-cancel-btn {
+    font-size: 11px;
+    padding: 3px 12px;
+    border: 1px solid #fca5a5;
+    background: #fff;
+    color: #dc2626;
+    border-radius: 4px;
+    cursor: pointer;
+    flex-shrink: 0;
+    transition: all 0.15s;
+}
+
+.at-cancel-btn:hover {
+    background: #fef2f2;
+    border-color: #dc2626;
+}
+
+.at-section {
+    border-top: 1px solid #f0f0f0;
+}
+
+.at-section-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 16px;
+    cursor: default;
+    user-select: none;
+    transition: background 0.1s;
+}
+
+.at-section-header:hover {
+    background: #fafafa;
+}
+
+.at-section-icon {
+    font-size: 14px;
+    flex-shrink: 0;
+}
+
+.at-section-label {
+    font-size: 12px;
+    font-weight: 600;
+    color: #555;
+    flex: 1;
+}
+
+.at-section-arrow {
+    font-size: 9px;
+    color: #aaa;
+    flex-shrink: 0;
+    width: 12px;
+    text-align: center;
+}
+
+.at-agent-count {
+    font-size: 11px;
+    font-weight: 600;
+    color: #6b7280;
+    background: #f3f4f6;
+    padding: 1px 8px;
+    border-radius: 10px;
+    flex-shrink: 0;
+    min-width: 20px;
+    text-align: center;
+}
+
+.at-agents-list {
+    padding: 0 16px 8px;
+}
+
+.at-agent-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 10px;
+    border-radius: 6px;
+    transition: background 0.1s;
+    margin-bottom: 2px;
+}
+
+.at-agent-row:hover {
+    background: #f9fafb;
+}
+
+.at-agent-row.at-agent-main {
+    background: #fffbf0;
+}
+
+.at-agent-row.at-agent-main:hover {
+    background: #fef7e4;
+}
+
+.at-agent-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: #94a3b8;
+    flex-shrink: 0;
+}
+
+.at-agent-dot.at-dot-pulse {
+    animation: at-dot-blink 1s ease-in-out infinite;
+}
+
+@keyframes at-dot-blink {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.3; }
+}
+
+.at-agent-info {
+    flex: 1;
+    min-width: 0;
+}
+
+.at-agent-name-line {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.at-agent-name {
+    font-size: 13px;
+    font-weight: 500;
+    color: #1a1a1a;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.at-agent-tag {
+    font-size: 10px;
+    font-weight: 600;
+    color: #3b82f6;
+    background: #eff6ff;
+    padding: 1px 6px;
+    border-radius: 3px;
+    flex-shrink: 0;
+}
+
+.at-agent-tag-main {
+    font-size: 10px;
+    font-weight: 700;
+    color: #d97706;
+    background: #fffbeb;
+    padding: 1px 6px;
+    border-radius: 3px;
+    flex-shrink: 0;
+}
+
+.at-agent-desc {
+    font-size: 11px;
+    color: #999;
+    margin-top: 2px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.at-agent-status {
+    font-size: 10px;
+    font-weight: 600;
+    padding: 2px 8px;
+    border-radius: 10px;
+    flex-shrink: 0;
+    white-space: nowrap;
+}
+
+.at-agent-monitor {
+    font-size: 11px;
+    margin-top: 3px;
+    padding: 2px 6px;
+    border-radius: 3px;
+}
+
+.at-monitor-ok {
+    color: #16a34a;
+    background: #f0fdf4;
+}
+
+.at-monitor-warn {
+    color: #dc2626;
+    background: #fef2f2;
+    font-weight: 600;
+}
+
+.at-section-body {
+    max-height: 400px;
+    overflow-y: auto;
+    font-family: "JetBrains Mono", "Fira Code", "Consolas", "Monaco", monospace;
+    font-size: 12px;
+    line-height: 1.7;
+    white-space: pre-wrap;
+    word-break: break-word;
+    padding: 8px 16px 12px;
+}
+
+.at-section-body::-webkit-scrollbar {
+    width: 6px;
+}
+
+.at-section-body::-webkit-scrollbar-track {
+    background: #f5f5f5;
+    border-radius: 3px;
+}
+
+.at-section-body::-webkit-scrollbar-thumb {
+    background: #ccc;
+    border-radius: 3px;
+}
+
+.at-section-body::-webkit-scrollbar-thumb:hover {
+    background: #999;
+}
+
+.at-thinking-body {
+    background: #fcfcfa;
+    color: #666;
+}
+
+.at-thinking-section .at-section-header {
+    cursor: pointer;
+}
+
+.at-thinking-section .at-section-icon {
+    color: #d97706;
+}
+
+.at-result-body {
+    background: #ffffff;
+    color: #1a1a1a;
+}
+
+.at-result-section .at-section-header {
+    cursor: pointer;
+}
+
+.at-line {
+    padding: 1px 0;
+}
+
+.at-line-agent {
+    color: #3b82f6;
+    font-weight: 600;
+    margin-right: 4px;
+}
+
+.at-line-error {
+    color: #dc2626;
+    font-weight: 500;
+}
+
+.at-line-system {
+    color: #6b7280;
+    font-style: italic;
+}
+
+.at-line-plan {
+    color: #8b5cf6;
+    font-weight: 500;
+}

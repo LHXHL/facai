@@ -92,15 +92,15 @@
 }
 
 .filter-badge.active {
-    background: #007bff;
+    background: #2563eb;
     color: #fff;
-    border-color: #007bff;
+    border-color: #2563eb;
 }
 
 .filter-badge.badge-danger {
-    background: #dc3545;
+    background: #dc2626;
     color: #fff;
-    border-color: #dc3545;
+    border-color: #dc2626;
 }
 
 .filter-badge.badge-warning {
@@ -110,9 +110,9 @@
 }
 
 .filter-badge.badge-info {
-    background: #17a2b8;
+    background: #2563eb;
     color: #fff;
-    border-color: #17a2b8;
+    border-color: #2563eb;
 }
 
 /* 类型筛选标签 */
@@ -137,9 +137,9 @@
 }
 
 .filter-tab.active {
-    background: #007bff;
+    background: #2563eb;
     color: #fff;
-    border-color: #007bff;
+    border-color: #2563eb;
 }
 
 /* 统计信息 */
@@ -204,7 +204,7 @@
 }
 
 .sortable:hover {
-    background: #e2e8f0;
+    background: #e5e5e5;
 }
 
 .sort-icon {
@@ -240,7 +240,7 @@
 }
 
 .empty-state.text-danger {
-    color: #dc3545;
+    color: #555;
 }
 
 /* 分页 */
@@ -272,9 +272,9 @@
 }
 
 .page-btn.active {
-    background: #007bff;
+    background: #2563eb;
     color: #fff;
-    border-color: #007bff;
+    border-color: #2563eb;
 }
 
 .page-ellipsis {
@@ -402,7 +402,7 @@
 }
 
 .vuln-detail-modal .modal-header {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: linear-gradient(135deg, #1e293b, #334155);
     color: #fff;
     border-radius: 8px 8px 0 0;
     padding: 15px 20px;
@@ -413,6 +413,7 @@
     margin: 0;
     font-weight: 600;
     font-size: 16px;
+    color: #ffffff;
 }
 
 .vuln-detail-modal .modal-header .close {
@@ -457,9 +458,9 @@
 }
 
 .vuln-detail-modal .detail-tab.active {
-    color: #667eea;
+    color: #1a1a1a;
     background: #fff;
-    border-bottom-color: #667eea;
+    border-bottom-color: #2563eb;
 }
 
 /* Tab内容 */

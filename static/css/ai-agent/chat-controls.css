@@ -1,0 +1,286 @@
+.chat-controls {
+    border-bottom: 1px solid #e5e5e5;
+    background: #fafafa;
+}
+
+.chat-controls-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 16px;
+    cursor: pointer;
+    user-select: none;
+    transition: background 0.1s;
+}
+
+.chat-controls-header:hover {
+    background: #f0f0f0;
+}
+
+.chat-controls-title {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 13px;
+    font-weight: 500;
+    color: #555;
+}
+
+.chat-controls-title .icon {
+    font-size: 14px;
+}
+
+.chat-controls-toggle {
+    font-size: 10px;
+    color: #999;
+    transition: transform 0.2s;
+}
+
+.chat-controls-toggle.collapsed {
+    transform: rotate(-90deg);
+}
+
+.chat-controls-body {
+    padding: 12px 16px 16px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 16px;
+    border-top: 1px solid #eee;
+    transition: all 0.2s;
+}
+
+.chat-controls-body.collapsed {
+    display: none;
+}
+
+.chat-control-group {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    min-width: 180px;
+    flex: 1;
+}
+
+.chat-control-group label {
+    font-size: 12px;
+    font-weight: 600;
+    color: #555;
+    margin: 0;
+}
+
+.chat-control-group .form-control {
+    font-size: 12px;
+    padding: 5px 8px;
+    height: auto;
+}
+
+.mcp-checkbox-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    max-height: 120px;
+    overflow-y: auto;
+    padding: 4px 0;
+}
+
+.mcp-checkbox-list::-webkit-scrollbar {
+    width: 3px;
+}
+
+.mcp-checkbox-list::-webkit-scrollbar-thumb {
+    background: #ddd;
+    border-radius: 2px;
+}
+
+.mcp-checkbox-label {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 12px;
+    color: #555;
+    cursor: pointer;
+    padding: 3px 8px;
+    border-radius: 3px;
+    border: 1px solid #e5e5e5;
+    background: #fff;
+    transition: all 0.1s;
+}
+
+.mcp-checkbox-label:hover {
+    border-color: #ccc;
+    background: #f5f5f5;
+}
+
+.mcp-checkbox-label input[type="checkbox"] {
+    margin: 0;
+    accent-color: #2563eb;
+}
+
+.mcp-transport-badge {
+    font-size: 10px;
+    color: #999;
+    background: #f5f5f5;
+    padding: 1px 5px;
+    border-radius: 2px;
+    margin-left: 2px;
+}
+
+.thinking-block {
+    margin-bottom: 8px;
+    border: 1px solid #e5e5e5;
+    border-radius: 4px;
+    overflow: hidden;
+}
+
+.thinking-block.collapsed .thinking-block-body {
+    display: none;
+}
+
+.thinking-block-header {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 10px;
+    background: #f9f9f9;
+    cursor: pointer;
+    font-size: 12px;
+    color: #888;
+    user-select: none;
+    transition: background 0.1s;
+}
+
+.thinking-block-header:hover {
+    background: #f0f0f0;
+    color: #555;
+}
+
+.thinking-block-icon {
+    font-size: 12px;
+}
+
+.thinking-block-title {
+    font-weight: 500;
+}
+
+.thinking-block-toggle {
+    margin-left: auto;
+    font-size: 10px;
+    transition: transform 0.2s;
+}
+
+.thinking-block.collapsed .thinking-block-toggle {
+    transform: rotate(-90deg);
+}
+
+.thinking-block-body {
+    padding: 10px 12px;
+    background: #fafafa;
+    font-size: 13px;
+    color: #666;
+    line-height: 1.6;
+    max-height: 300px;
+    overflow-y: auto;
+    overflow-anchor: none;
+}
+
+.thinking-block-body::-webkit-scrollbar {
+    width: 6px;
+}
+
+.thinking-block-body::-webkit-scrollbar-track {
+    background: #f0f0f0;
+    border-radius: 3px;
+}
+
+.thinking-block-body::-webkit-scrollbar-thumb {
+    background: #bbb;
+    border-radius: 3px;
+}
+
+.thinking-block-body::-webkit-scrollbar-thumb:hover {
+    background: #999;
+}
+
+.thinking-block-content {
+    word-break: break-word;
+}
+
+.msg-main-content {
+    margin-top: 8px;
+}
+
+.chat-input-wrap {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    background: #f5f5f5;
+    border: 1px solid #e5e5e5;
+    border-radius: 6px;
+    padding: 8px 12px;
+    transition: border-color 0.15s;
+    min-height: 0;
+    overflow: hidden;
+}
+
+.chat-input-wrap:focus-within {
+    border-color: #2563eb;
+    background: #ffffff;
+    box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.1);
+}
+
+.chat-input-wrap textarea {
+    flex: 1;
+    border: none;
+    outline: none;
+    resize: none;
+    font-size: 14px;
+    line-height: 1.5;
+    max-height: none;
+    min-height: 22px;
+    padding: 2px 0;
+    background: transparent;
+    color: #1a1a1a;
+    font-family: inherit;
+    height: 100%;
+}
+
+.chat-input-wrap textarea::placeholder {
+    color: #bbb;
+}
+
+.chat-input-hint {
+    font-size: 11px;
+    color: #ccc;
+    margin-top: 4px;
+    text-align: right;
+}
+
+.chat-img-btn {
+    padding: 6px 10px;
+    border: 1px solid #e5e5e5;
+    background: #fafafa;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 16px;
+    color: #666;
+    transition: all 0.1s;
+    flex-shrink: 0;
+    align-self: flex-end;
+}
+
+.chat-img-btn:hover {
+    background: #f0f0f0;
+    border-color: #ccc;
+}
+
+.chat-image-preview-bar {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin-bottom: 6px;
+}
+
+.chat-image-preview-bar .chat-image-item {
+    width: 48px;
+    height: 48px;
+}

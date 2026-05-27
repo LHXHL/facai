@@ -52,10 +52,11 @@ def get_highlight_list():
         search_type = request.args.get('search_type', 'url')
         sort_by = request.args.get('sort_by', 'time')
         sort_order = int(request.args.get('sort_order', -1))
+        tag = request.args.get('tag', '')
 
         db = HighlightDatabase(project_name)
-        highlights = db.get_all_highlights(page, page_size, sort_by, sort_order, search_keyword, search_type)
-        total_count = db.search_highlights_count(search_keyword, search_type)
+        highlights = db.get_all_highlights(page, page_size, sort_by, sort_order, search_keyword, search_type, tag)
+        total_count = db.search_highlights_count(search_keyword, search_type, tag)
 
         # 转换ObjectId为字符串
         highlights = convert_objectid_to_str(highlights)
@@ -177,6 +178,22 @@ def clear_all_highlights():
             return jsonify({'success': True, 'message': '清空成功'})
         else:
             return jsonify({'success': False, 'message': '清空失败'}), 500
+    except Exception as e:
+        return jsonify({'success': False, 'message': str(e)}), 500
+
+
+@highlight_api.route('/api/assets/highlights/tags', methods=['GET'])
+def get_highlight_tags():
+    """获取所有标签及数量"""
+    try:
+        project_name = get_running_project_name()
+        if not project_name:
+            return jsonify({'success': True, 'tags': {}})
+
+        db = HighlightDatabase(project_name)
+        tags = db.get_all_tags()
+
+        return jsonify({'success': True, 'tags': tags})
     except Exception as e:
         return jsonify({'success': False, 'message': str(e)}), 500
 

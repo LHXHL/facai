@@ -26,28 +26,36 @@ class HighlightDatabase:
         # 使用 project_{name}_data 表名
         self.collection_name = f"project_{project_name}_data" if project_name else None
 
-    def get_all_highlights(self, page=1, page_size=20, sort_by='time', sort_order=-1, search_keyword='', search_type='url'):
+    def get_all_highlights(self, page=1, page_size=20, sort_by='time', sort_order=-1, search_keyword='', search_type='url', tag=''):
         """获取重点资产列表（分页）"""
         if not self.collection_name:
             return []
 
         query = {}
+        if tag and tag.strip():
+            query['tags'] = tag
         if search_keyword and search_keyword.strip():
             if search_type == 'url':
-                query = {'url': {'$regex': search_keyword, '$options': 'i'}}
+                query['url'] = {'$regex': search_keyword, '$options': 'i'}
             elif search_type == 'title':
-                query = {'title': {'$regex': search_keyword, '$options': 'i'}}
+                query['title'] = {'$regex': search_keyword, '$options': 'i'}
             elif search_type == 'tags':
-                query = {'tags': {'$regex': search_keyword, '$options': 'i'}}
+                if 'tags' in query:
+                    query['$and'] = [
+                        {'tags': query.pop('tags')},
+                        {'tags': {'$regex': search_keyword, '$options': 'i'}}
+                    ]
+                else:
+                    query['tags'] = {'$regex': search_keyword, '$options': 'i'}
             elif search_type == 'type':
-                query = {'type': {'$regex': search_keyword, '$options': 'i'}}
+                query['type'] = {'$regex': search_keyword, '$options': 'i'}
             else:
-                query = {'$or': [
+                query['$or'] = [
                     {'url': {'$regex': search_keyword, '$options': 'i'}},
                     {'title': {'$regex': search_keyword, '$options': 'i'}},
                     {'tags': {'$regex': search_keyword, '$options': 'i'}},
                     {'desc': {'$regex': search_keyword, '$options': 'i'}}
-                ]}
+                ]
 
         projection = None
         skip = (page - 1) * page_size
@@ -105,13 +113,13 @@ class HighlightDatabase:
             return self.db_handler.update_one(
                 self.collection_name, 
                 {'_id': ObjectId(highlight_id)}, 
-                {'$set': highlight_data}
+                highlight_data
             )
         except Exception:
             return self.db_handler.update_one(
                 self.collection_name, 
                 {'_id': highlight_id}, 
-                {'$set': highlight_data}
+                highlight_data
             )
 
     def delete_highlight(self, highlight_id):
@@ -136,31 +144,55 @@ class HighlightDatabase:
             return 0
         return self.db_handler.count_documents(self.collection_name, {})
 
-    def search_highlights_count(self, search_keyword, search_type='url'):
+    def search_highlights_count(self, search_keyword, search_type='url', tag=''):
         """搜索结果数量"""
         if not self.collection_name:
             return 0
 
+        query = {}
+        if tag and tag.strip():
+            query['tags'] = tag
         if search_keyword and search_keyword.strip():
             if search_type == 'url':
-                query = {'url': {'$regex': search_keyword, '$options': 'i'}}
+                query['url'] = {'$regex': search_keyword, '$options': 'i'}
             elif search_type == 'title':
-                query = {'title': {'$regex': search_keyword, '$options': 'i'}}
+                query['title'] = {'$regex': search_keyword, '$options': 'i'}
             elif search_type == 'tags':
-                query = {'tags': {'$regex': search_keyword, '$options': 'i'}}
+                if 'tags' in query:
+                    query['$and'] = [
+                        {'tags': query.pop('tags')},
+                        {'tags': {'$regex': search_keyword, '$options': 'i'}}
+                    ]
+                else:
+                    query['tags'] = {'$regex': search_keyword, '$options': 'i'}
             elif search_type == 'type':
-                query = {'type': {'$regex': search_keyword, '$options': 'i'}}
+                query['type'] = {'$regex': search_keyword, '$options': 'i'}
             else:
-                query = {'$or': [
+                query['$or'] = [
                     {'url': {'$regex': search_keyword, '$options': 'i'}},
                     {'title': {'$regex': search_keyword, '$options': 'i'}},
                     {'tags': {'$regex': search_keyword, '$options': 'i'}},
                     {'desc': {'$regex': search_keyword, '$options': 'i'}}
-                ]}
-        else:
-            query = {}
+                ]
 
         return self.db_handler.count_documents(self.collection_name, query)
+
+    def get_all_tags(self):
+        """获取所有去重标签及其数量"""
+        if not self.collection_name:
+            return {}
+        pipeline = [
+            {'$unwind': '$tags'},
+            {'$group': {'_id': '$tags', 'count': {'$sum': 1}}},
+            {'$sort': {'count': -1}}
+        ]
+        result = self.db_handler.aggregate(self.collection_name, pipeline)
+        tags = {}
+        for item in result:
+            tag_name = item.get('_id', '')
+            if tag_name:
+                tags[tag_name] = item.get('count', 0)
+        return tags
 
     def get_type_statistics(self):
         """获取各类型资产统计"""

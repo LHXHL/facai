@@ -1,0 +1,317 @@
+/* AI Agent - Audit 样式 */
+
+.audit-box {
+    padding: 0;
+}
+
+.audit-settings-bar {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 10px 14px;
+    margin-bottom: 16px;
+    background: #f8f9fa;
+    border-radius: 6px;
+    border: 1px solid #e9ecef;
+}
+
+.audit-setting-group {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 13px;
+    color: #555;
+}
+
+.audit-setting-group label {
+    margin: 0;
+    font-weight: 500;
+    white-space: nowrap;
+}
+
+.audit-setting-input {
+    width: 70px !important;
+    text-align: center;
+    padding: 4px 6px !important;
+    font-size: 13px;
+}
+
+.audit-setting-unit {
+    color: #888;
+    font-size: 12px;
+    white-space: nowrap;
+}
+
+/* 模型名称显示 */
+.audit-model-group {
+    margin-left: auto;
+}
+
+.audit-model-name {
+    color: #4a6cf7;
+    font-weight: 600;
+    font-family: 'JetBrains Mono', 'Fira Code', 'Consolas', monospace;
+    font-size: 12px;
+    padding: 3px 10px;
+    background: #eef0ff;
+    border-radius: 12px;
+}
+
+.audit-tabs {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 20px;
+}
+
+.audit-mode-btn {
+    border: 1px solid #ddd;
+    background: #fff;
+    color: #666;
+    border-radius: 4px;
+    padding: 6px 16px;
+    cursor: pointer;
+}
+
+.audit-mode-btn.active {
+    background: #2563eb;
+    color: #fff;
+    border-color: #2563eb;
+}
+
+.audit-form {
+    margin-bottom: 20px;
+}
+
+.audit-result {
+    margin-top: 20px;
+    white-space: pre-wrap;
+    word-wrap: break-word;
+    font-size: 14px;
+    line-height: 1.7;
+    background: #ffffff;
+    padding: 20px;
+    border: 1px solid #e8ecf0;
+    border-radius: 12px;
+    max-height: 600px;
+    overflow-y: auto;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.04);
+}
+
+/* 审计结果 Markdown 样式 */
+.audit-result-content h1,
+.audit-result-content h2,
+.audit-result-content h3 {
+    margin: 16px 0 8px;
+    font-weight: 700;
+    color: #2d3748;
+}
+
+.audit-result-content h1 { font-size: 20px; border-bottom: 2px solid #e8ecf0; padding-bottom: 6px; }
+.audit-result-content h2 { font-size: 17px; color: #1a1a1a; }
+.audit-result-content h3 { font-size: 15px; }
+
+.audit-result-content code {
+    background: #f1f3f5;
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-family: 'JetBrains Mono', 'Fira Code', 'Consolas', monospace;
+    font-size: 13px;
+    color: #e74c3c;
+}
+
+.audit-result-content pre {
+    background: #1e1e2e;
+    color: #cdd6f4;
+    padding: 14px 18px;
+    border-radius: 8px;
+    overflow-x: auto;
+    margin: 10px 0;
+    font-size: 13px;
+    line-height: 1.5;
+    border: 1px solid #313244;
+}
+
+.audit-result-content pre code {
+    background: none;
+    color: inherit;
+    padding: 0;
+    font-size: inherit;
+}
+
+.audit-result-content ul,
+.audit-result-content ol {
+    padding-left: 20px;
+    margin: 8px 0;
+}
+
+.audit-result-content li {
+    margin: 4px 0;
+}
+
+.audit-result-content blockquote {
+    border-left: 3px solid #1a1a1a;
+    padding: 4px 12px;
+    margin: 8px 0;
+    color: #666;
+    background: #f8f9fa;
+    border-radius: 0 6px 6px 0;
+}
+
+.audit-result-content a {
+    color: #1a1a1a;
+    text-decoration: none;
+}
+
+.audit-result-content a:hover {
+    text-decoration: underline;
+}
+
+.audit-result-content table {
+    border-collapse: collapse;
+    width: 100%;
+    margin: 10px 0;
+    font-size: 13px;
+}
+
+.audit-result-content th,
+.audit-result-content td {
+    border: 1px solid #e0e3e8;
+    padding: 8px 12px;
+    text-align: left;
+}
+
+.audit-result-content th {
+    background: #f5f6f8;
+    font-weight: 600;
+}
+
+.audit-result-content hr {
+    border: none;
+    border-top: 1px solid #e0e3e8;
+    margin: 12px 0;
+}
+
+/* 按钮组：开始 + 停止并排 */
+.audit-btn-group {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+}
+
+.audit-btn-group .audit-stop-btn {
+    padding: 6px 16px;
+    font-size: 14px;
+}
+
+/* 思考过程折叠区域 */
+.audit-thinking-section {
+    margin-top: 16px;
+    margin-bottom: 12px;
+    border: 1px solid #e0d8f5;
+    border-radius: 8px;
+    overflow: hidden;
+    background: #f9f7ff;
+}
+
+.audit-thinking-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 16px;
+    cursor: pointer;
+    font-size: 13px;
+    font-weight: 600;
+    color: #7c5cbf;
+    user-select: none;
+    background: #f0ecfa;
+    transition: background 0.2s;
+}
+
+.audit-thinking-header:hover {
+    background: #e8e0f5;
+}
+
+.audit-thinking-header::after {
+    content: '▼';
+    font-size: 10px;
+    color: #7c5cbf;
+    transition: transform 0.2s;
+}
+
+.audit-thinking-header.audit-thinking-collapsed::after {
+    transform: rotate(-90deg);
+}
+
+.audit-thinking-body {
+    padding: 12px 16px;
+    font-size: 13px;
+    line-height: 1.6;
+    color: #555;
+    white-space: pre-wrap;
+    word-wrap: break-word;
+    max-height: 300px;
+    overflow-y: auto;
+    font-family: 'JetBrains Mono', 'Fira Code', 'Consolas', monospace;
+    background: #fcfbff;
+}
+
+/* 审计思考中动画 */
+.audit-thinking-status {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 0;
+}
+
+.audit-thinking-dots {
+    display: flex;
+    gap: 4px;
+}
+
+.audit-thinking-dots span {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: #1a1a1a;
+    animation: thinking-bounce 1.4s ease-in-out infinite;
+}
+
+.audit-thinking-dots span:nth-child(1) { animation-delay: 0s; }
+.audit-thinking-dots span:nth-child(2) { animation-delay: 0.2s; }
+.audit-thinking-dots span:nth-child(3) { animation-delay: 0.4s; }
+
+.audit-thinking-text {
+    font-size: 14px;
+    color: #1a1a1a;
+    font-weight: 500;
+}
+
+/* 审计按钮加载状态 */
+.audit-btn-loading {
+    display: inline-block;
+    width: 12px;
+    height: 12px;
+    border: 2px solid rgba(255,255,255,0.3);
+    border-top-color: #fff;
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+    vertical-align: middle;
+}
+
+.audit-submit-btn:disabled {
+    opacity: 0.8;
+    cursor: not-allowed;
+}
+
+/* 审计空结果 / 错误提示 */
+.audit-empty-result {
+    color: #999;
+    font-style: italic;
+    padding: 8px 0;
+}
+
+.audit-error-result {
+    color: #e74c3c;
+    padding: 8px 0;
+    font-weight: 500;
+}

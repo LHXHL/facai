@@ -1,6 +1,6 @@
 # coding: utf-8
 """
-动态爬虫控制器（与数据库交互）
+动态资产爬虫控制器（与数据库交互）
 @Time :    3/14/2025 11:05
 @Author:  fff
 @File: dynamic_crawler.py
@@ -15,6 +15,7 @@
 
 import socket
 import time
+import pymongo
 from service.spider.browser_cdp import BrowserCDP
 from service.Class_Core_Function import Class_Core_Function
 from api.import_traffic_api import ImportTrafficAPI
@@ -116,18 +117,12 @@ class DynamicCrawler:
                 'message': 'Mitmproxy服务未启动，请重启主程序'
             }
 
-        # 启动 Chrome
+        # 检测 Chrome 状态（仅监测，不自动启动）
         if not chrome_status['is_running']:
-            self.Core_Function.callback_logging().info("动态爬虫: 正在启动 Chrome...")
-            result = chrome_service.start(mode='normal')
-            if result['success']:
-                messages.append('Chrome 已启动')
-                time.sleep(3)  # 等待 Chrome 完全启动
-            else:
-                return {
-                    'success': False,
-                    'message': f"Chrome 启动失败: {result['message']}"
-                }
+            return {
+                'success': False,
+                'message': 'Chrome 未运行，请手动启动浏览器'
+            }
 
         # 再次验证服务状态
         chrome_status = chrome_service.get_status()
@@ -185,39 +180,49 @@ class DynamicCrawler:
 
     def _update_processed_status(self, url_info_list):
         """
-        更新已处理数据的状态
+        更新已处理数据的状态（批量更新）
         :param url_info_list: 已处理的URL信息列表
         """
+        # 收集所有需要更新的 _id
+        website_ids = []
         for url_info in url_info_list:
-            try:
-                source = url_info.get('source')
-                _id = url_info.get('_id')
-                if not _id or source != 'website':
-                    continue
+            source = url_info.get('source')
+            _id = url_info.get('_id')
+            if _id and source == 'website':
+                website_ids.append(_id)
 
+        # 批量更新
+        if website_ids:
+            try:
                 collection = f"project_{self.project_name}_website"
-                self.db_handler.update_one(
+                self.db_handler.update_many(
                     collection,
-                    {'_id': _id},
-                    {'status': 1}  # 标记为已处理
+                    {'_id': {'$in': website_ids}},
+                    {'status': 1}
                 )
             except Exception as e:
-                self.Core_Function.callback_logging().error(f"更新状态失败: {e}")
+                self.Core_Function.callback_logging().error(f"批量更新状态失败: {e}")
 
     def _update_page_data(self, page_data_list):
         """
-        更新页面数据到 website/http 表
+        更新页面数据到 website/http 表（bulk_write 批量操作）
         :param page_data_list: 页面数据列表（包含 screenshot, title, current_url 等）
         """
         if not page_data_list or not self.project_name:
             return
-        
-        for page_data in page_data_list:
-            try:
+
+        try:
+            # 构建所有更新操作
+            website_ops = []
+            http_ops = []
+            website_urls = set()
+            http_urls = set()
+
+            for page_data in page_data_list:
                 url = page_data.get('url', '')
                 if not url:
                     continue
-                
+
                 # 准备更新数据
                 update_data = {
                     'title': page_data.get('title', ''),
@@ -226,31 +231,62 @@ class DynamicCrawler:
                     'html_len': page_data.get('html_len', 0),
                     'time_update': page_data.get('time', self.Core_Function.callback_time(0))
                 }
-                
+
                 # 只有截图存在时才更新
                 screenshot = page_data.get('screenshot', '')
                 if screenshot:
                     update_data['screenshot'] = screenshot
-                
-                # 更新 website 表（按 URL 匹配）
-                website_collection = f"project_{self.project_name}_website"
-                result = self.db_handler.update_one(
-                    website_collection,
-                    {'url': url},
-                    update_data
+
+                website_ops.append(
+                    pymongo.UpdateOne({'url': url}, {'$set': update_data})
                 )
-                
-                # 如果 website 表没有匹配，尝试更新 http 表
-                if not result or result.matched_count == 0:
+                website_urls.add(url)
+                http_ops.append(
+                    pymongo.UpdateOne({'url': url}, {'$set': update_data})
+                )
+                http_urls.add(url)
+
+            # 批量更新 website 表
+            website_collection = f"project_{self.project_name}_website"
+            if website_ops:
+                result = self.db_handler.bulk_write(website_collection, website_ops)
+                # 找出 website 表没有匹配的 URL，对这些 URL 更新 http 表
+                if result and result.matched_count < len(website_urls):
+                    # 简化：仍然批量更新 http 表（不匹配的会静默跳过）
                     http_collection = f"project_{self.project_name}_http"
-                    self.db_handler.update_one(
-                        http_collection,
-                        {'url': url},
-                        update_data
-                    )
-                    
-            except Exception as e:
-                self.Core_Function.callback_logging().error(f"更新页面数据失败: {e}")
+                    self.db_handler.bulk_write(http_collection, http_ops)
+            else:
+                # 没有匹配任何 website，全部更新 http 表
+                http_collection = f"project_{self.project_name}_http"
+                if http_ops:
+                    self.db_handler.bulk_write(http_collection, http_ops)
+
+        except Exception as e:
+            self.Core_Function.callback_logging().error(f"批量更新页面数据失败: {e}")
+            # 回退到逐条更新
+            for page_data in page_data_list:
+                try:
+                    url = page_data.get('url', '')
+                    if not url:
+                        continue
+                    update_data = {
+                        'title': page_data.get('title', ''),
+                        'current_url': page_data.get('current_url', ''),
+                        'html_browser_md5': page_data.get('html_browser_md5', ''),
+                        'html_len': page_data.get('html_len', 0),
+                        'time_update': page_data.get('time', self.Core_Function.callback_time(0))
+                    }
+                    screenshot = page_data.get('screenshot', '')
+                    if screenshot:
+                        update_data['screenshot'] = screenshot
+
+                    website_collection = f"project_{self.project_name}_website"
+                    r = self.db_handler.update_one(website_collection, {'url': url}, update_data)
+                    if not r or r.matched_count == 0:
+                        http_collection = f"project_{self.project_name}_http"
+                        self.db_handler.update_one(http_collection, {'url': url}, update_data)
+                except Exception:
+                    pass
 
     def _save_crawled_data(self, urls, htmls):
         """
@@ -258,36 +294,33 @@ class DynamicCrawler:
         :param urls: 提取的URL列表
         :param htmls: HTML数据列表
         """
-        # 1. 保存URL到 traffic 表
+        # 1. 保存URL到 traffic 表（批量构建请求 + 批量去重 + 批量插入）
         url_list = list(set(urls))
         
-        # 数据库去重：检查哪些URL已存在
-        existing_urls = self.traffic_db.urls_exist(url_list)
-        url_list = [url for url in url_list if url not in existing_urls]
-        
         self.Core_Function.callback_logging().info(f"开始保存爬取数据: URLs={len(url_list)}, HTMLs={len(htmls)}")
+        
         url_imported = 0
-        for url in url_list[:3000]:
-            try:
-                result = self.import_traffic.import_traffic_url(url, self.project_name)
-                if result.get('success'):
-                    url_imported += 1
-            except Exception as e:
-                self.Core_Function.callback_logging().error(f"导入URL失败: {url}, 错误: {e}")
+        if url_list[:3000]:
+            # 批量构建请求数据
+            request_list = []
+            for url in url_list[:3000]:
+                try:
+                    request = self.Core_Function.create_request(url)
+                    request['source'] = 1  # 来源：动态爬虫
+                    request_list.append(request)
+                except Exception:
+                    pass
+
+            if request_list:
+                result = self.import_traffic.import_traffic_request(request_list, self.project_name)
+                url_imported = result.get('imported', 0)
 
         self.Core_Function.callback_logging().info(f"动态爬虫: 导入URL {url_imported}/{len(url_list)} 条")
 
-        # 2. 保存HTML到 html 表
+        # 2. 保存HTML到 html 表（批量）
         html_saved = 0
-        if self.html_db:
-            for html_data in htmls:
-                try:
-                    result = self.html_db.import_html(html_data)
-                    if result:
-                        html_saved += 1
-                except Exception as e:
-                    self.Core_Function.callback_logging().error(f"保存HTML失败: {html_data.get('html_md5')}, 错误: {e}")
-
+        if self.html_db and htmls:
+            html_saved = self.html_db.import_html_batch(htmls)
             self.Core_Function.callback_logging().info(f"动态爬虫: 保存HTML {html_saved}/{len(htmls)} 条")
 
     # ==================== 主要接口 ====================

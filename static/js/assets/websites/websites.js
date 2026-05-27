@@ -1,6 +1,6 @@
 function WebsitesModule() {
     this.currentPage = 1;
-    this.pageSize = 20;
+    this.pageSize = 21;
     this.searchKeyword = '';
     this.searchField = 'url';
 
@@ -19,7 +19,7 @@ function WebsitesModule() {
                             </div>
                         </div>
                     </div>
-                    <div class="form-group p-3">
+                    <div class="form-group">
                         <div class="row mb-3">
                             <div class="col-md-3">
                                 <select class="form-control" id="searchField">
@@ -40,7 +40,7 @@ function WebsitesModule() {
                             </div>
                         </div>
                         <div id="websiteList" class="website-grid"></div>
-                        <div id="pagination"></div>
+                        <div id="websitesPagination" class="module-pagination"></div>
                     </div>
                 </div>
             </div>
@@ -63,8 +63,8 @@ function WebsitesModule() {
                 sort_order: -1
             },
             success: function(data) {
-                var container = $('#websiteList');
-                container.empty();
+                var $listContainer = $('#websiteList');
+                $listContainer.empty();
                 if (data.websites && data.websites.length > 0) {
                     var gridHtml = '<div class="row">';
                     data.websites.forEach(function(item) {
@@ -164,7 +164,7 @@ function WebsitesModule() {
                         `;
                     });
                     gridHtml += '</div>';
-                    container.html(gridHtml);
+                    $listContainer.html(gridHtml);
 
                     // 渲染分页
                     var paginationHtml = PageUp.generatePagination({
@@ -174,16 +174,17 @@ function WebsitesModule() {
                             self.currentPage = page;
                             self.loadWebsites();
                         }
-                    });
-                    $('#pagination').html(paginationHtml);
+                    }, self.container);
+                    self.container.find('.module-pagination').html(paginationHtml);
                 } else {
-                    container.html('<div class="text-center text-muted p-5"><h4>暂无网站数据</h4></div>');
+                    $listContainer.html('<div class="text-center text-muted p-5"><h4>暂无网站数据</h4></div>');
+                    self.container.find('.module-pagination').html('');
                 }
                 // 执行回调
                 if (callback) callback();
             },
             error: function() {
-                container.html('<div class="text-center text-danger p-5"><h4>加载失败</h4></div>');
+                $listContainer.html('<div class="text-center text-danger p-5"><h4>加载失败</h4></div>');
                 if (callback) callback();
             }
         });
@@ -193,7 +194,7 @@ function WebsitesModule() {
         var self = this;
 
         // 刷新按钮
-        $('#refreshWebsites').on('click', function() {
+        this.container.on('click', '#refreshWebsites', function() {
             self.currentPage = 1;
             self.loadWebsites(function() {
                 alert('刷新完成');
@@ -201,7 +202,7 @@ function WebsitesModule() {
         });
 
         // 搜索按钮
-        $('#searchBtn').on('click', function() {
+        this.container.on('click', '#searchBtn', function() {
             self.searchKeyword = $('#searchWebsite').val();
             self.searchField = $('#searchField').val();
             self.currentPage = 1;
@@ -209,7 +210,7 @@ function WebsitesModule() {
         });
 
         // 清除搜索按钮
-        $('#clearSearchBtn').on('click', function() {
+        this.container.on('click', '#clearSearchBtn', function() {
             $('#searchWebsite').val('');
             self.searchKeyword = '';
             self.searchField = 'url';
@@ -219,7 +220,7 @@ function WebsitesModule() {
         });
 
         // 搜索框回车搜索
-        $('#searchWebsite').on('keypress', function(e) {
+        this.container.on('keypress', '#searchWebsite', function(e) {
             if (e.which === 13) {
                 $('#searchBtn').click();
             }
@@ -277,87 +278,75 @@ function WebsitesModule() {
                     var website = data.website;
 
                     // 处理标签显示
-                    var tagsText = '';
+                    var tagsHtml = '';
                     if (website.tag && website.tag.length > 0) {
-                        tagsText = website.tag.join(', ');
+                        tagsHtml = website.tag.map(function(tag) {
+                            return '<span class="detail-tag">' + tag + '</span>';
+                        }).join('');
                     }
 
-                    // 处理截图显示
-                    var screenshotHtml = '';
+                    // 状态码颜色
+                    var statusClass = 'info';
+                    if (website.http_status_code >= 200 && website.http_status_code < 300) {
+                        statusClass = 'success';
+                    } else if (website.http_status_code >= 300 && website.http_status_code < 400) {
+                        statusClass = 'warning';
+                    } else if (website.http_status_code >= 400) {
+                        statusClass = 'danger';
+                    }
+
+                    // 截图区域
+                    var screenshotSection = '';
                     if (website.screenshot) {
-                        screenshotHtml = `<img src="/${website.screenshot}" alt="截图" style="max-width: 100%; max-height: 300px;">`;
+                        screenshotSection = `
+                            <div class="detail-screenshot" data-src="/${website.screenshot}">
+                                <img src="/${website.screenshot}" alt="网站截图">
+                            </div>`;
                     }
 
                     var modalHtml = `
                         <div class="modal" id="websiteDetailModal">
-                            <div class="modal-content" style="max-width: 800px;">
+                            <div class="modal-content website-detail-modal">
                                 <div class="modal-header">
                                     <h5 class="modal-title">网站详情</h5>
                                     <button type="button" class="modal-close">&times;</button>
                                 </div>
                                 <div class="modal-body">
-                                    <div class="form-group">
-                                        <label>URL</label>
-                                        <input type="text" class="form-control" value="${website.url}" readonly>
+                                    ${screenshotSection}
+
+                                    <!-- 核心信息 -->
+                                    <div class="detail-section">
+                                        <div class="detail-main-info">
+                                            ${website.url ? '<div class="detail-url"><a href="' + website.url + '" target="_blank">' + website.url + '</a></div>' : ''}
+                                            ${website.title ? '<div class="detail-title">' + website.title + '</div>' : ''}
+                                        </div>
+                                        <div class="detail-meta-grid">
+                                            ${website.http_status_code ? '<div class="detail-meta-item"><span class="meta-label">状态码</span><span class="status-badge status-' + statusClass + '" style="min-width:auto;height:28px;border-radius:6px;font-size:13px;"><span class="status-number">' + website.http_status_code + '</span></span></div>' : ''}
+                                            ${website.method ? '<div class="detail-meta-item"><span class="meta-label">方法</span><span class="meta-value">' + website.method + '</span></div>' : ''}
+                                            ${website.port ? '<div class="detail-meta-item"><span class="meta-label">端口</span><span class="meta-value">' + website.port + '</span></div>' : ''}
+                                            ${website.server ? '<div class="detail-meta-item"><span class="meta-label">服务器</span><span class="meta-value">' + website.server + '</span></div>' : ''}
+                                            ${website.subdomain ? '<div class="detail-meta-item"><span class="meta-label">子域名</span><span class="meta-value">' + website.subdomain + '</span></div>' : ''}
+                                            ${website.domain ? '<div class="detail-meta-item"><span class="meta-label">域名</span><span class="meta-value">' + website.domain + '</span></div>' : ''}
+                                            ${website.web_fingerprint ? '<div class="detail-meta-item"><span class="meta-label">Web指纹</span><span class="meta-value">' + website.web_fingerprint + '</span></div>' : ''}
+                                        </div>
                                     </div>
-                                    <div class="form-group">
-                                        <label>子域名</label>
-                                        <input type="text" class="form-control" value="${website.subdomain || ''}" readonly>
-                                    </div>
-                                    <div class="form-group">
-                                        <label>域名</label>
-                                        <input type="text" class="form-control" value="${website.domain || ''}" readonly>
-                                    </div>
-                                    <div class="form-group">
-                                        <label>标题</label>
-                                        <input type="text" class="form-control" value="${website.title || ''}" readonly>
-                                    </div>
-                                    <div class="form-group">
-                                        <label>方法</label>
-                                        <input type="text" class="form-control" value="${website.method || ''}" readonly>
-                                    </div>
-                                    <div class="form-group">
-                                        <label>端口</label>
-                                        <input type="text" class="form-control" value="${website.port || ''}" readonly>
-                                    </div>
-                                    <div class="form-group">
-                                        <label>状态码</label>
-                                        <input type="text" class="form-control" value="${website.http_status_code || ''}" readonly>
-                                    </div>
-                                    <div class="form-group">
-                                        <label>服务器</label>
-                                        <input type="text" class="form-control" value="${website.server || ''}" readonly>
-                                    </div>
-                                    <div class="form-group">
-                                        <label>Web指纹</label>
-                                        <input type="text" class="form-control" value="${website.web_fingerprint || ''}" readonly>
-                                    </div>
-                                    <div class="form-group">
-                                        <label>标签</label>
-                                        <input type="text" class="form-control" value="${tagsText}" readonly>
-                                    </div>
-                                    <div class="form-group">
-                                        <label>HTML MD5</label>
-                                        <input type="text" class="form-control" value="${website.html_md5 || ''}" readonly>
-                                    </div>
-                                    <div class="form-group">
-                                        <label>HTML长度</label>
-                                        <input type="text" class="form-control" value="${website.html_len || ''}" readonly>
-                                    </div>
-                                    <div class="form-group">
-                                        <label>首次访问时间</label>
-                                        <input type="text" class="form-control" value="${website.time_first || ''}" readonly>
-                                    </div>
-                                    <div class="form-group">
-                                        <label>更新时间</label>
-                                        <input type="text" class="form-control" value="${website.time_update || ''}" readonly>
-                                    </div>
-                                    ${screenshotHtml ? `
-                                    <div class="form-group">
-                                        <label>截图</label>
-                                        <div>${screenshotHtml}</div>
-                                    </div>
-                                    ` : ''}
+
+                                    ${tagsHtml ? `
+                                    <!-- 标签 -->
+                                    <div class="detail-section">
+                                        <div class="detail-tags">${tagsHtml}</div>
+                                    </div>` : ''}
+
+                                    <!-- 时间信息（折叠） -->
+                                    <details class="detail-extra">
+                                        <summary>更多详细信息</summary>
+                                        <div class="detail-extra-content">
+                                            ${website.time_first ? '<div class="detail-meta-item"><span class="meta-label">首次访问</span><span class="meta-value">' + website.time_first + '</span></div>' : ''}
+                                            ${website.time_update ? '<div class="detail-meta-item"><span class="meta-label">更新时间</span><span class="meta-value">' + website.time_update + '</span></div>' : ''}
+                                            ${website.html_md5 ? '<div class="detail-meta-item"><span class="meta-label">HTML MD5</span><span class="meta-value mono">' + website.html_md5 + '</span></div>' : ''}
+                                            ${website.html_len ? '<div class="detail-meta-item"><span class="meta-label">HTML长度</span><span class="meta-value">' + website.html_len + '</span></div>' : ''}
+                                        </div>
+                                    </details>
                                 </div>
                                 <div class="modal-footer">
                                     <button type="button" class="btn btn-secondary modal-close-btn">关闭</button>
@@ -369,7 +358,15 @@ function WebsitesModule() {
                     $('body').append(modalHtml);
                     $('#websiteDetailModal').addClass('active');
 
-                    // 关闭modal - 直接绑定到元素上
+                    // 点击截图放大
+                    $('#websiteDetailModal').on('click', '.detail-screenshot', function() {
+                        var src = $(this).data('src');
+                        if (src) {
+                            self.showImageModal(src);
+                        }
+                    });
+
+                    // 关闭modal
                     $('#websiteDetailModal').on('click', '.modal-close, .modal-close-btn', function() {
                         $('#websiteDetailModal').removeClass('active');
                         setTimeout(function() {
@@ -387,7 +384,7 @@ function WebsitesModule() {
                         }
                     });
                 } else {
-                    // 静默处理错误，不显示alert
+                    // 静默处理错误
                 }
             },
             error: function() {
@@ -401,11 +398,10 @@ function WebsitesModule() {
         $('#imageModal').remove();
 
         var modalHtml = `
-            <div class="modal" id="imageModal" style="display: flex; align-items: center; justify-content: center;">
-                <div class="modal-overlay" style="position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.85);"></div>
+            <div class="modal" id="imageModal" style="display: flex; align-items: center; justify-content: center; background: transparent;">
                 <div style="position: relative; max-width: 90vw; max-height: 90vh;">
-                    <img src="${src}" alt="截图" style="max-width: 90vw; max-height: 90vh; border-radius: 8px; box-shadow: 0 4px 20px rgba(0,0,0,0.5);">
-                    <button class="modal-close" style="position: absolute; top: -40px; right: 0; background: none; border: none; color: white; font-size: 32px; cursor: pointer;">&times;</button>
+                    <img src="${src}" alt="截图" style="max-width: 90vw; max-height: 90vh; border-radius: 4px;">
+                    <button class="modal-close" style="position: absolute; top: -36px; right: 0; background: rgba(0,0,0,0.5); border: none; color: white; font-size: 24px; cursor: pointer; border-radius: 4px; width: 32px; height: 32px; line-height: 1;">&times;</button>
                 </div>
             </div>
         `;
@@ -415,7 +411,7 @@ function WebsitesModule() {
 
         // 关闭modal
         $('#imageModal').on('click', function(e) {
-            if (e.target === this || $(e.target).hasClass('modal-close') || $(e.target).hasClass('modal-overlay')) {
+            if (e.target === this || $(e.target).hasClass('modal-close')) {
                 $('#imageModal').fadeOut(200, function() {
                     $(this).remove();
                 });

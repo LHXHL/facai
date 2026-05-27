@@ -21,6 +21,7 @@ from bs4 import BeautifulSoup
 from database.website_database import WebsiteDatabase
 from database.html_database import HtmlDatabase
 from service.Class_Core_Function import Class_Core_Function
+from service.libs.replay_request import send_http_request
 
 
 class WebsiteCollector:
@@ -38,39 +39,6 @@ class WebsiteCollector:
         self.http_thread = self.project_config.get('http_thread', 10) if self.project_config else 10
         self.domain_list = self.project_config.get('domain_list', []) if self.project_config else []
 
-    def _extract_domain(self, website):
-        """
-        从网站URL中提取主域名，基于project_config中的domain_list进行匹配
-
-        Args:
-            website: 网站 URL
-
-        Returns:
-            str: 主域名
-        """
-        # 使用 callback_split_url(url, 2) 返回 www.xxx.com（不含端口）
-        subdomain = self.core_function.callback_split_url(website, 2)
-        if not subdomain:
-            return ''
-
-        # 如果没有domain_list，使用默认逻辑（取后两级）
-        if not self.domain_list:
-            parts = subdomain.split('.')
-            if len(parts) >= 2:
-                return '.'.join(parts[-2:])
-            return subdomain
-
-        # 从最长匹配开始（匹配更精确的域名优先）
-        for domain in sorted(self.domain_list, key=len, reverse=True):
-            if subdomain.endswith('.' + domain) or subdomain == domain:
-                return domain
-
-        # 未匹配到任何domain_list，返回默认后两级
-        parts = subdomain.split('.')
-        if len(parts) >= 2:
-            return '.'.join(parts[-2:])
-        return subdomain
-
     def _visit_website(self, website):
         """
         访问网站获取基本信息
@@ -82,11 +50,19 @@ class WebsiteCollector:
             dict: 网站信息
         """
         try:
-            # 使用 create_request 创建请求
             request_data = self.core_function.create_request(website)
             headers = request_data.get('headers', {})
 
-            response = requests.get(website, headers=headers, timeout=self.timeout, verify=False)
+            req_data = {
+                'url': website,
+                'method': 'GET',
+                'headers': headers,
+                'body': '',
+                'body_encoding': 'plain'
+            }
+            response = send_http_request(req_data, timeout=self.timeout, allow_redirects=True)
+            if response is None:
+                return None
 
             # 自动识别网页编码
             response.encoding = response.apparent_encoding
@@ -111,7 +87,7 @@ class WebsiteCollector:
                 'http_status_code': response.status_code,
                 'headers_response': dict(response.headers),
                 'subdomain': self.core_function.callback_split_url(website, 2),
-                'domain': self._extract_domain(website),
+                'domain': self.core_function.extract_domain(self.core_function.callback_split_url(website, 2)),
                 'port': self.core_function.callback_port_number(website),
                 'current_url': response.url,
                 'html_md5': html_md5,
@@ -130,7 +106,7 @@ class WebsiteCollector:
             website: 网站 URL
 
         Returns:
-            dict: 处理结果
+            dict: 处理结果，包含 _html 字段用于后续批量保存HTML
         """
         try:
             # 访问网站获取信息
@@ -140,18 +116,19 @@ class WebsiteCollector:
             if not site_info:
                 return None
 
-            # 保存HTML到html数据库（如果html_md5不存在则写入）
+            # 收集HTML数据（不在此处保存，改为批量保存）
             html_md5 = site_info.get('html_md5', '')
             html_len = int(site_info.get('html_len', 0))
             html_content = site_info.get('html', '')
 
+            html_data = None
             if html_md5 and html_content:
-                self.html_db.import_html({
+                html_data = {
                     'html': html_content,
                     'html_md5': html_md5,
                     'html_len': html_len,
                     'status': 0
-                })
+                }
 
             return {
                 'url': website,
@@ -176,7 +153,8 @@ class WebsiteCollector:
                 'time_first': self.core_function.callback_time(0),
                 'time_update': self.core_function.callback_time(0),
                 'http_status_code': site_info.get('http_status_code', 0),
-                'status': 0
+                'status': 0,
+                'html_data': html_data  # HTML数据，不入库website表
             }
 
         except Exception as e:
@@ -203,17 +181,18 @@ class WebsiteCollector:
                 normalized = self.core_function.callback_split_url(website, 3)
                 if normalized not in normalized_urls:
                     normalized_urls[normalized] = website
-
-            # 查询数据库中已存在的标准化URL
-            new_websites = []
-            for normalized, original_url in normalized_urls.items():
-                existing = self.website_db.db_handler.find_one(
+            # 查询数据库中已存在的标准化URL（$in 批量查询）
+            normalized_list = list(normalized_urls.keys())
+            existing_set = set()
+            if normalized_list:
+                existing_docs = self.website_db.db_handler.find(
                     self.website_db.collection_name,
-                    {'url': normalized}
+                    {'url': {'$in': normalized_list}},
+                    projection={'url': 1}
                 )
-                if not existing:
-                    new_websites.append(original_url)
+                existing_set = {doc['url'] for doc in existing_docs}
 
+            new_websites = [original_url for normalized, original_url in normalized_urls.items() if normalized not in existing_set]
             if not new_websites:
                 return {
                     'success': True,
@@ -233,14 +212,47 @@ class WebsiteCollector:
 
             self.core_function.threadpool_Core_Function(process_wrapper, new_websites, self.http_thread)
 
-            # 3. 保存到website数据库
-            saved_count = 0
+            # 3. 提取HTML数据并批量保存到html表
+            html_data_list = []
             for data in processed_data:
+                html_data = data.pop('html_data', None)
+                if html_data:
+                    html_data_list.append(html_data)
+
+            html_saved_count = 0
+            if html_data_list:
+                html_saved_count = self.html_db.import_html_batch(html_data_list)
+
+            # 4. 保存到website数据库（批量插入）
+            saved_count = 0
+            if processed_data:
                 try:
-                    self.website_db.add_website(data)
-                    saved_count += 1
-                except:
-                    pass
+                    # 再次用 url 批量去重（处理多线程处理期间可能的重复）
+                    urls_in_batch = [d.get('url', '') for d in processed_data]
+                    existing_docs = self.website_db.db_handler.find(
+                        self.website_db.collection_name,
+                        {'url': {'$in': urls_in_batch}},
+                        projection={'url': 1}
+                    )
+                    existing_urls = {doc['url'] for doc in existing_docs}
+                    truly_new = [d for d in processed_data if d.get('url', '') not in existing_urls]
+
+                    if truly_new:
+                        result = self.website_db.db_handler.insert_many(
+                            self.website_db.collection_name,
+                            truly_new
+                        )
+                        saved_count = len(result.inserted_ids) if result else 0
+                    else:
+                        saved_count = 0
+                except Exception:
+                    # 批量插入失败，回退到逐条插入
+                    for data in processed_data:
+                        try:
+                            self.website_db.add_website(data)
+                            saved_count += 1
+                        except:
+                            pass
 
             return {
                 'success': True,

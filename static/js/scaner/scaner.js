@@ -21,13 +21,16 @@ function ScanerModule() {
                 this.renderAutoMode(container);
                 break;
             case 'manual':
-                this.renderManualMode(container);
+                this.renderManualMode(data, container);
                 break;
             case 'results':
                 this.renderResults(container);
                 break;
             case 'logs':
                 this.renderLogs(container);
+                break;
+            case 'fuzz':
+                this.renderFuzz(container);
                 break;
             default:
                 this.renderOverview(container);
@@ -54,9 +57,9 @@ function ScanerModule() {
         autoModeModule.render({}, container);
     };
 
-    this.renderManualMode = function(container) {
+    this.renderManualMode = function(data, container) {
         var manualModeModule = new ScanerManualModeModule();
-        manualModeModule.render({}, container);
+        manualModeModule.render(data, container);
     };
 
     this.renderResults = function(container) {
@@ -67,6 +70,11 @@ function ScanerModule() {
     this.renderLogs = function(container) {
         var logsModule = new ScanerLogsModule();
         logsModule.render({}, container);
+    };
+
+    this.renderFuzz = function(container) {
+        var fuzzModule = new FuzzModule();
+        fuzzModule.render({}, container);
     };
 }
 

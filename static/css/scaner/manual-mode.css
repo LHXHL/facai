@@ -2,14 +2,14 @@
 
 /* 所有样式限定在 .manual-page 范围内，避免影响全局 */
 .manual-page {
-    min-height: calc(100vh - 60px);
+    min-height: 100%;
     background: #f5f7fa;
     padding: 0;
 }
 
 /* 页面头部 */
 .manual-page .page-header {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: linear-gradient(135deg, #1e293b, #334155);
     padding: 30px 40px;
     display: flex;
     justify-content: space-between;
@@ -57,8 +57,8 @@
 }
 
 .manual-page .header-actions .btn-primary {
-    background: #fff;
-    color: #667eea;
+    background: #fff !important;
+    color: #1a1a1a !important;
     border: none;
 }
 
@@ -73,7 +73,7 @@
     display: grid;
     grid-template-columns: 1fr 1fr;
     gap: 0;
-    min-height: calc(100vh - 150px);
+    min-height: 100%;
 }
 
 /* 面板通用样式 */
@@ -93,7 +93,7 @@
 .manual-page .panel-header {
     padding: 20px 25px;
     border-bottom: 1px solid #e9ecef;
-    background: #fafbfc;
+    background: #fafafa;
 }
 
 .manual-page .panel-title {
@@ -109,14 +109,14 @@
     gap: 10px;
     margin-top: 10px;
     font-size: 14px;
-    color: #667eea;
+    color: #1a1a1a;
 }
 
 .manual-page .status-spinner {
     width: 16px;
     height: 16px;
     border: 2px solid #e9ecef;
-    border-top-color: #667eea;
+    border-top-color: #1a1a1a;
     border-radius: 50%;
     animation: manualSpin 0.8s linear infinite;
 }
@@ -156,13 +156,13 @@
 }
 
 .manual-page .mode-tab:hover {
-    border-color: #667eea;
-    color: #667eea;
+    border-color: #2563eb;
+    color: #2563eb;
 }
 
 .manual-page .mode-tab.active {
-    background: #667eea;
-    border-color: #667eea;
+    background: #2563eb;
+    border-color: #2563eb;
     color: #fff;
 }
 
@@ -172,27 +172,98 @@
 
 /* 输入区域 */
 .manual-page .input-wrapper {
-    height: 100%;
+    flex: 1;
+    min-height: 0;
     display: flex;
     flex-direction: column;
 }
 
-.manual-page .input-wrapper textarea {
+.manual-page .highlight-container {
     flex: 1;
-    width: 100%;
-    padding: 20px;
+    min-height: calc(100vh - 320px);
+    position: relative;
     border: 2px solid #e9ecef;
+    border-radius: 8px;
+    transition: border-color 0.2s;
+}
+
+.manual-page .highlight-container:focus-within {
+    border-color: #2563eb;
+}
+
+.manual-page .highlight-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    margin: 0;
+    padding: 20px;
+    font-family: 'Courier New', monospace;
+    font-size: 13px;
+    line-height: 1.6;
+    white-space: pre-wrap;
+    word-wrap: break-word;
+    word-break: break-all;
+    overflow: auto;
+    color: #1e293b;
+    background: #ffffff;
+    pointer-events: none;
+    z-index: 0;
+    border: none;
+    outline: none;
+    box-sizing: border-box;
+    tab-size: 4;
+}
+
+.manual-page .highlight-overlay .shj-syn-cmnt { color: #6b7280; font-style: italic; }
+.manual-page .highlight-overlay .shj-syn-err { color: #555; }
+.manual-page .highlight-overlay .shj-syn-kwd { color: #333; }
+.manual-page .highlight-overlay .shj-syn-num { color: #555; }
+.manual-page .highlight-overlay .shj-syn-class { color: #555; }
+.manual-page .highlight-overlay .shj-syn-str { color: #16a34a; }
+.manual-page .highlight-overlay .shj-syn-insert { color: #16a34a; }
+.manual-page .highlight-overlay .shj-syn-bool { color: #555; }
+.manual-page .highlight-overlay .shj-syn-type { color: #0284c7; }
+.manual-page .highlight-overlay .shj-syn-oper { color: #555; }
+.manual-page .highlight-overlay .shj-syn-section { color: #333; }
+.manual-page .highlight-overlay .shj-syn-func { color: #4f46e5; }
+.manual-page .highlight-overlay .shj-syn-deleted { color: #555; }
+.manual-page .highlight-overlay .shj-syn-var { color: #555; }
+
+.manual-page .input-wrapper textarea {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    padding: 20px;
+    border: none;
     border-radius: 8px;
     font-family: 'Courier New', monospace;
     font-size: 13px;
     line-height: 1.6;
     resize: none;
-    transition: border-color 0.2s;
+    background: transparent;
+    color: transparent;
+    caret-color: #1e293b;
+    z-index: 1;
+    -webkit-text-fill-color: transparent;
+    white-space: pre-wrap;
+    word-wrap: break-word;
+    word-break: break-all;
+    overflow: auto;
+    box-sizing: border-box;
+    tab-size: 4;
+}
+
+.manual-page .input-wrapper textarea::placeholder {
+    -webkit-text-fill-color: #adb5bd;
+    color: #adb5bd;
 }
 
 .manual-page .input-wrapper textarea:focus {
     outline: none;
-    border-color: #667eea;
 }
 
 .manual-page .input-hint {
@@ -243,12 +314,12 @@
 }
 
 .manual-page .success-state {
-    background: linear-gradient(135deg, #d4edda 0%, #c3e6cb 100%);
+    background: #f5f5f5;
     border-radius: 8px;
 }
 
 .manual-page .error-state {
-    background: #fff5f5;
+    background: #fafafa;
     border-radius: 8px;
 }
 
@@ -268,7 +339,7 @@
 .manual-page .summary-item {
     flex: 1;
     padding: 20px;
-    background: linear-gradient(135deg, #fff 0%, #f8f9fa 100%);
+    background: #ffffff;
     border-radius: 8px;
     text-align: center;
     border: 2px solid #e9ecef;
@@ -276,14 +347,14 @@
 
 .manual-page .summary-item.danger {
     border-color: #f5c6cb;
-    background: linear-gradient(135deg, #fff 0%, #fff5f5 100%);
+    background: #ffffff;
 }
 
 .manual-page .summary-value {
     display: block;
     font-size: 32px;
     font-weight: 700;
-    color: #dc3545;
+    color: #555;
     margin-bottom: 5px;
 }
 
@@ -311,7 +382,7 @@
 }
 
 .manual-page .vuln-card.high {
-    border-left: 4px solid #dc3545;
+    border-left: 4px solid #555;
 }
 
 .manual-page .vuln-card.medium {
@@ -319,7 +390,7 @@
 }
 
 .manual-page .vuln-card.low {
-    border-left: 4px solid #17a2b8;
+    border-left: 4px solid #2563eb;
 }
 
 .manual-page .vuln-header {
@@ -340,7 +411,7 @@
 
 /* 重命名为 vuln-badge-* 避免冲突 */
 .manual-page .vuln-badge-danger {
-    background: #dc3545;
+    background: #555;
     color: #fff;
 }
 
@@ -350,7 +421,7 @@
 }
 
 .manual-page .vuln-badge-info {
-    background: #17a2b8;
+    background: #2563eb;
     color: #fff;
 }
 

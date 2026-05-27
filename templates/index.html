@@ -4,14 +4,22 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Facai - 网络安全资产管理系统</title>
-    <link rel="stylesheet" href="css/head.css">
+    <link rel="stylesheet" href="css/base/reset.css">
+    <link rel="stylesheet" href="css/base/layout.css">
+    <link rel="stylesheet" href="css/base/components.css">
+    <link rel="stylesheet" href="css/base/utilities.css">
     <link rel="stylesheet" href="css/projects/projects.css">
     <link rel="stylesheet" href="css/services/services.css">
-    <link rel="stylesheet" href="css/spider/spider.css">
-    <link rel="stylesheet" href="css/ai-agent/ai-agent.css">
+
+
+
     <link rel="stylesheet" href="css/scaner/scaner.css">
     <link rel="stylesheet" href="css/scaner/scaner_config.css">
+    <link rel="stylesheet" href="css/scaner/fuzz.css">
     <link rel="stylesheet" href="css/traffic/traffic.css">
+    <link rel="stylesheet" href="css/traffic/capture.css">
+    <link rel="stylesheet" href="css/speed-highlight.css">
+    <link rel="stylesheet" href="css/lib/hex-viewer.css">
     <link rel="stylesheet" href="css/assets/assets.css">
     <link rel="stylesheet" href="css/assets/overview.css">
     <link rel="stylesheet" href="css/assets/websites.css">
@@ -24,7 +32,9 @@
     <link rel="stylesheet" href="css/tools/replay.css">
     <link rel="stylesheet" href="css/tools/port-scan.css">
     <link rel="stylesheet" href="css/system/system.css">
+    <link rel="stylesheet" href="css/pageup.css">
     <script src="jquery.js"></script>
+    <script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
 </head>
 <body>
     <div class="container">
@@ -37,11 +47,13 @@
                 <ul>
                     <li><a href="#projects" data-module="projects">项目管理</a></li>
                     <li><a href="#services" data-module="services">服务管理</a></li>
-                    <li><a href="#traffic" data-module="traffic">HTTP流量</a></li>
+
+                    <li><a href="#capture" data-module="capture">HTTP捕捉</a></li>
                     <li>
                         <a href="#assets" data-module="assets">资产管理</a>
                         <ul class="submenu">
                             <li><a href="#assets/overview" data-module="assets/overview">资产总览</a></li>
+                            <li><a href="#traffic" data-module="traffic">HTTP流量</a></li>
                             <li><a href="#assets/config" data-module="assets/config">资产管理配置</a></li>
                             <li><a href="#assets/subdomains" data-module="assets/subdomains">子域名管理</a></li>
                             <li><a href="#assets/websites" data-module="assets/websites">网站管理</a></li>
@@ -60,8 +72,7 @@
                             <li><a href="#tools/port-scan" data-module="tools/port-scan">端口扫描</a></li>
                         </ul>
                     </li>
-                    <li><a href="#spider" data-module="spider">爬虫管理</a></li>
-                    <li><a href="#ai-agent" data-module="ai-agent">AI Agent</a></li>
+
                     <li>
                         <a href="#scaner" data-module="scaner">漏洞扫描管理</a>
                         <ul class="submenu">
@@ -70,6 +81,7 @@
                             <li><a href="#scaner/manual" data-module="scaner/manual">手动模式</a></li>
                             <li><a href="#scaner/results" data-module="scaner/results">扫描结果</a></li>
                             <li><a href="#scaner/logs" data-module="scaner/logs">盲打日志</a></li>
+                            <li><a href="#scaner/fuzz" data-module="scaner/fuzz">爆破工具</a></li>
                         </ul>
                     </li>
                     <li><a href="#system" data-module="system">系统配置</a></li>
@@ -77,15 +89,6 @@
             </nav>
         </div>
         <div class="main-content">
-            <div class="header">
-                <div class="breadcrumb"></div>
-                <div class="project-status-display" id="projectStatusDisplay">
-                    <div class="status-indicator">
-                        <span class="status-dot" id="statusDot"></span>
-                        <span class="status-text" id="statusText">加载中...</span>
-                    </div>
-                </div>
-            </div>
             <div class="tabs">
                 <div class="tab-list"></div>
                 <div class="tab-content"></div>
@@ -105,8 +108,8 @@
     <script src="js/assets/overview/overview.js"></script>
     <script src="js/projects/projects.js"></script>
     <script src="js/services/services.js"></script>
-    <script src="js/spider/spider.js"></script>
-    <script src="js/ai-agent/ai-agent.js"></script>
+
+
     <!-- 漏洞扫描器模块（按顺序加载） -->
     <script src="js/scaner/scaner.js"></script>
     <script src="js/scaner/overview.js"></script>
@@ -114,7 +117,13 @@
     <script src="js/scaner/manual_mode.js"></script>
     <script src="js/scaner/results.js"></script>
     <script src="js/scaner/logs.js"></script>
+    <script src="js/scaner/fuzz.js"></script>
     <script src="js/traffic/traffic.js"></script>
+    <script src="js/traffic/capture.js"></script>
+    <script src="js/lib/speed-highlight/detect.js"></script>
+    <script src="js/lib/speed-highlight/index.js"></script>
+
+    <script src="js/lib/hex-viewer/hex-viewer.js"></script>
     <script src="js/assets/subdomains/subdomains.js"></script>
     <script src="js/assets/websites/websites.js"></script>
     <script src="js/assets/html/html.js"></script>

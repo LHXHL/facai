@@ -14,10 +14,10 @@
                 </div>
 
                 <div class="services-container">
-                    <!-- 爬虫服务 -->
+                    <!-- 资产爬虫服务 -->
                     <div class="service-section">
                         <div class="section-header">
-                            <h3>🕷️ 爬虫服务</h3>
+                            <h3>🕷️ 资产爬虫服务</h3>
                         </div>
                         <div class="service-info">
                             <span class="info-label">状态:</span>
@@ -25,7 +25,7 @@
                         </div>
                         <div class="service-info">
                             <span class="info-label">说明:</span>
-                            <span class="info-value">自动爬取网站，解析HTML，提取链接和资源</span>
+                            <span class="info-value">自动爬取网站首页，解析HTML，提取链接和资源</span>
                         </div>
                         <div class="service-actions">
                             <button class="btn btn-success btn-sm" id="startSpiderService">开启</button>
@@ -173,11 +173,11 @@
 
         // ========== 主动服务管理 ==========
         
-        // 爬虫服务
+        // 资产爬虫服务
         $('#startSpiderService').on('click', function() {
             ServicesAPI.startSpider(function(response) {
                 if (response.success) {
-                    alert('爬虫服务已启动！');
+                    alert('资产爬虫服务已启动！');
                     self.loadServiceStatus();
                 } else {
                     alert('启动失败：' + response.message);
@@ -188,7 +188,7 @@
         $('#stopSpiderService').on('click', function() {
             ServicesAPI.stopSpider(function(response) {
                 if (response.success) {
-                    alert('爬虫服务已关闭！');
+                    alert('资产爬虫服务已关闭！');
                     self.loadServiceStatus();
                 } else {
                     alert('关闭失败：' + response.message);

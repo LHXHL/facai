@@ -192,11 +192,28 @@ var AssetsAPI = {
     },
 
     highlights: {
-        list: function(params, callback) {
+        list: function(params, callback, errorCallback) {
             $.ajax({
                 url: '/api/assets/highlights',
                 type: 'GET',
                 data: params,
+                success: callback,
+                error: errorCallback
+            });
+        },
+
+        tags: function(callback) {
+            $.ajax({
+                url: '/api/assets/highlights/tags',
+                type: 'GET',
+                success: callback
+            });
+        },
+
+        detail: function(id, callback) {
+            $.ajax({
+                url: '/api/assets/highlights/' + id,
+                type: 'GET',
                 success: callback
             });
         },
@@ -205,7 +222,8 @@ var AssetsAPI = {
             $.ajax({
                 url: '/api/assets/highlights',
                 type: 'POST',
-                data: data,
+                contentType: 'application/json',
+                data: JSON.stringify(data),
                 success: callback
             });
         },
@@ -214,7 +232,8 @@ var AssetsAPI = {
             $.ajax({
                 url: '/api/assets/highlights/' + id,
                 type: 'POST',
-                data: data,
+                contentType: 'application/json',
+                data: JSON.stringify(data),
                 success: callback
             });
         },
@@ -223,6 +242,14 @@ var AssetsAPI = {
             $.ajax({
                 url: '/api/assets/highlights/' + id,
                 type: 'DELETE',
+                success: callback
+            });
+        },
+
+        clear: function(callback) {
+            $.ajax({
+                url: '/api/assets/highlights/clear',
+                type: 'POST',
                 success: callback
             });
         }

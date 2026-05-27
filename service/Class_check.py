@@ -7,7 +7,6 @@
 """
 from re import S
 from urllib.parse import urlparse
-
 from jinja2.utils import F
 from service.Class_Core_Function import Class_Core_Function
 import os
@@ -32,6 +31,7 @@ class class_check:
             config = self.Core_Function.callback_project_config()
             if config:
                 self.config = config
+            #print(self.config)
         except Exception as e:
             print(f"加载项目配置失败: {str(e)}")
 
@@ -111,7 +111,6 @@ class class_check:
         """
         if not self.config:
             return False
-
         domain = domain.lower()
         domain_list = self.config.get('domain_list', [])
 
@@ -119,6 +118,7 @@ class class_check:
             allowed_domain = allowed_domain.lower()
             # 支持子域名匹配和完全匹配
             if domain.endswith('.' + allowed_domain) or domain == allowed_domain or domain in self.whitelist_domains:
+                #print(f"{domain} 在白名单内")
                 return True
         return False
 
@@ -147,8 +147,6 @@ class class_check:
         :return: True表示通过检测，False表示不通过
         """
         domain = domain.lower()
-        if self.check_traffic_domain(domain):
-            return True
 
         # 第一优先级：检查是否在白名单内（whitelist_domain.txt），存在则直接返回True
         for whitelist_domain in self.whitelist_domains:
@@ -167,8 +165,10 @@ class class_check:
             # 完全匹配
             elif domain == blocklist_domain:
                 return False
+        if self.check_traffic_domain(domain):
+            return True
 
-        return True
+        return False
 
     def check_site(self, site):
         """

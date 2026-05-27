@@ -19,6 +19,7 @@ function OverviewModule() {
                         <div class="facai-stat-info">
                             <div class="facai-stat-number" id="subdomainsCount">-</div>
                             <div class="facai-stat-label">子域名</div>
+                            <div class="facai-stat-pending" id="subdomainsPending">待处理: -</div>
                         </div>
                     </div>
                     
@@ -31,6 +32,7 @@ function OverviewModule() {
                         <div class="facai-stat-info">
                             <div class="facai-stat-number" id="websitesCount">-</div>
                             <div class="facai-stat-label">网站</div>
+                            <div class="facai-stat-pending" id="websitesPending">待处理: -</div>
                         </div>
                     </div>
                     
@@ -43,6 +45,20 @@ function OverviewModule() {
                         <div class="facai-stat-info">
                             <div class="facai-stat-number" id="httpCount">-</div>
                             <div class="facai-stat-label">HTTP请求</div>
+                            <div class="facai-stat-pending" id="httpPending">待处理: -</div>
+                        </div>
+                    </div>
+                    
+                    <div class="facai-stat-card" data-type="traffic">
+                        <div class="facai-stat-icon facai-traffic-icon">
+                            <svg viewBox="0 0 24 24" width="32" height="32">
+                                <path fill="currentColor" d="M4 6h16v2H4zm0 5h16v2H4zm0 5h16v2H4z"/>
+                            </svg>
+                        </div>
+                        <div class="facai-stat-info">
+                            <div class="facai-stat-number" id="trafficCount">-</div>
+                            <div class="facai-stat-label">HTTP流量</div>
+                            <div class="facai-stat-pending" id="trafficPending">待处理: -</div>
                         </div>
                     </div>
                     
@@ -55,6 +71,7 @@ function OverviewModule() {
                         <div class="facai-stat-info">
                             <div class="facai-stat-number" id="htmlCount">-</div>
                             <div class="facai-stat-label">HTML文件</div>
+                            <div class="facai-stat-pending" id="htmlPending">待处理: -</div>
                         </div>
                     </div>
                     
@@ -138,19 +155,28 @@ function OverviewModule() {
                     self.animateNumber('#httpCount', overview.http || 0);
                     self.animateNumber('#htmlCount', overview.html || 0);
                     self.animateNumber('#highlightsCount', overview.highlights || 0);
+                    self.animateNumber('#trafficCount', overview.traffic || 0);
                     self.animateNumber('#ipCidrCount', overview.ip_cidr || 0);
                     self.animateNumber('#ipCount', overview.ip || 0);
                 }
             }
         });
 
-        // 加载详细统计数据
+        // 加载详细统计数据（包含待处理数量）
         $.ajax({
             url: '/api/assets/overview/detail',
             type: 'GET',
             success: function(data) {
                 if (data.success) {
-                    self.renderHighlightTypeChart(data.detail.highlight_type);
+                    var detail = data.detail;
+                    // 更新待处理数量
+                    $('#subdomainsPending').text('待处理: ' + (detail.subdomain_pending || 0));
+                    $('#websitesPending').text('待处理: ' + (detail.website_pending || 0));
+                    $('#httpPending').text('待处理: ' + (detail.http_pending || 0));
+                    $('#htmlPending').text('待处理: ' + (detail.html_pending || 0));
+                    $('#trafficPending').text('待处理: ' + (detail.traffic_pending || 0));
+                    
+                    self.renderHighlightTypeChart(detail.highlight_type);
                 }
             }
         });
@@ -292,12 +318,12 @@ function OverviewModule() {
         var self = this;
 
         // 刷新按钮
-        $('#refreshOverview').on('click', function() {
+        this.container.on('click', '#refreshOverview', function() {
             self.loadOverview();
         });
 
         // 点击统计卡片跳转
-        $('.facai-stat-card').on('click', function() {
+        this.container.on('click', '.facai-stat-card', function() {
             var type = $(this).data('type');
             var moduleMap = {
                 'subdomains': 'assets/subdomains',
@@ -309,7 +335,7 @@ function OverviewModule() {
                 'ip': 'assets/ip'
             };
             if (moduleMap[type]) {
-                TabManager.openTab('assets', moduleMap[type].split('/')[1], {
+                TabManager.openTab(moduleMap[type], moduleMap[type].split('/')[1], {
                     subModule: moduleMap[type].split('/')[1]
                 });
             }
@@ -319,13 +345,13 @@ function OverviewModule() {
         this.container.on('click', '.facai-recent-item', function() {
             var type = $(this).data('type');
             var moduleMap = {
-                'highlights': 'highlights',
-                'websites': 'websites',
-                'http': 'http'
+                'highlights': 'assets/highlights',
+                'websites': 'assets/websites',
+                'http': 'assets/http'
             };
             if (moduleMap[type]) {
-                TabManager.openTab('assets', moduleMap[type], {
-                    subModule: moduleMap[type]
+                TabManager.openTab(moduleMap[type], moduleMap[type].split('/')[1], {
+                    subModule: moduleMap[type].split('/')[1]
                 });
             }
         });

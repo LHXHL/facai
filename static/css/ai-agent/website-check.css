@@ -1,0 +1,286 @@
+﻿/* AI Agent - 站点静态安全审计样式 */
+
+/* 站点输入区域 */
+.wc-input-section {
+    margin-bottom: 20px;
+}
+
+.wc-site-group {
+    margin-bottom: 12px;
+}
+
+.wc-site-group label {
+    font-weight: 600;
+    font-size: 14px;
+    color: #2d3748;
+    margin-bottom: 6px;
+}
+
+.wc-site-group input {
+    font-size: 14px;
+    padding: 10px 14px;
+    border-radius: 8px;
+    border: 1px solid #d0d5dd;
+    transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.wc-site-group input:focus {
+    border-color: #2563eb;
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
+    outline: none;
+}
+
+/* 按钮组 */
+.wc-btn-group {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+}
+
+.wc-btn-group .btn {
+    padding: 8px 24px;
+    font-weight: 500;
+    border-radius: 8px;
+    font-size: 14px;
+    transition: all 0.2s;
+}
+
+.wc-btn-group .btn-primary {
+    background: #2563eb;
+    border: none;
+    color: #fff;
+}
+
+.wc-btn-group .btn-primary:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(37, 99, 235, 0.35);
+}
+
+.wc-btn-group .btn-primary:disabled {
+    opacity: 0.7;
+    transform: none;
+    box-shadow: none;
+}
+
+.wc-btn-group .btn-danger {
+    background: #e74c3c;
+    border: none;
+    color: #fff;
+}
+
+.wc-btn-group .btn-warning {
+    background: #d97706;
+    border: none;
+    color: #fff;
+}
+
+.wc-btn-group .btn-warning:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(243, 156, 18, 0.35);
+}
+
+/* 深度思考开关 */
+.wc-switch {
+    position: relative;
+    display: inline-block;
+    width: 40px;
+    height: 22px;
+}
+
+.wc-switch input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+.wc-switch-slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background-color: #ccc;
+    transition: 0.3s;
+    border-radius: 22px;
+}
+
+.wc-switch-slider:before {
+    position: absolute;
+    content: "";
+    height: 16px;
+    width: 16px;
+    left: 3px;
+    bottom: 3px;
+    background-color: #fff;
+    transition: 0.3s;
+    border-radius: 50%;
+}
+
+.wc-switch input:checked + .wc-switch-slider {
+    background-color: #16a34a;
+}
+
+.wc-switch input:checked + .wc-switch-slider:before {
+    transform: translateX(18px);
+}
+
+/* 进度条 */
+.wc-progress-section {
+    margin-bottom: 16px;
+}
+
+.wc-progress-bar {
+    height: 4px;
+    background: #e9ecef;
+    border-radius: 4px;
+    overflow: hidden;
+    margin-bottom: 8px;
+}
+
+.wc-progress-fill {
+    height: 100%;
+    background: #2563eb;
+    border-radius: 4px;
+    width: 0%;
+    transition: width 0.5s ease;
+}
+
+.wc-progress-text {
+    font-size: 12px;
+    color: #888;
+}
+
+/* 思考过程折叠区域 */
+.wc-thinking-section {
+    margin-bottom: 16px;
+    border: 1px solid #e8ecf0;
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+.wc-thinking-header {
+    padding: 10px 14px;
+    background: #f8f9fa;
+    cursor: pointer;
+    font-size: 13px;
+    font-weight: 600;
+    color: #555;
+    user-select: none;
+    display: flex;
+    align-items: center;
+}
+
+.wc-thinking-header::before {
+    content: "▼ ";
+    font-size: 10px;
+    transition: transform 0.2s;
+}
+
+.wc-thinking-header.wc-thinking-collapsed::before {
+    content: "▶ ";
+}
+
+.wc-thinking-body {
+    padding: 12px 14px;
+    background: #1e1e2e;
+    color: #cdd6f4;
+    font-family: 'JetBrains Mono', 'Fira Code', 'Consolas', monospace;
+    font-size: 12px;
+    line-height: 1.6;
+    white-space: pre-wrap;
+    word-wrap: break-word;
+    max-height: 200px;
+    overflow-y: auto;
+}
+
+/* 结果区域 */
+.wc-result-section {
+    margin-top: 16px;
+}
+
+.wc-result-content {
+    white-space: pre-wrap;
+    word-wrap: break-word;
+    font-size: 14px;
+    line-height: 1.7;
+    background: #ffffff;
+    padding: 20px;
+    border: 1px solid #e8ecf0;
+    border-radius: 12px;
+    max-height: 700px;
+    overflow-y: auto;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.04);
+}
+
+/* 结果内容 Markdown 样式 */
+.wc-result-content h2 {
+    margin: 20px 0 10px;
+    font-size: 18px;
+    font-weight: 700;
+    color: #1a1a1a;
+    border-bottom: 2px solid #e8ecf0;
+    padding-bottom: 6px;
+}
+
+.wc-result-content h3 {
+    margin: 16px 0 8px;
+    font-size: 16px;
+    font-weight: 700;
+    color: #2d3748;
+}
+
+.wc-result-content h4 {
+    margin: 12px 0 6px;
+    font-size: 15px;
+    font-weight: 600;
+    color: #555;
+}
+
+.wc-result-content h5 {
+    margin: 10px 0 4px;
+    font-size: 14px;
+    font-weight: 600;
+    color: #555;
+}
+
+.wc-result-content code {
+    background: #f1f3f5;
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-family: 'JetBrains Mono', 'Fira Code', 'Consolas', monospace;
+    font-size: 13px;
+    color: #e74c3c;
+}
+
+.wc-result-content .wc-code-block {
+    background: #1e1e2e;
+    color: #cdd6f4;
+    padding: 14px 18px;
+    border-radius: 8px;
+    overflow-x: auto;
+    margin: 10px 0;
+    font-size: 13px;
+    line-height: 1.5;
+    border: 1px solid #313244;
+}
+
+.wc-result-content .wc-code-block code {
+    background: none;
+    color: inherit;
+    padding: 0;
+    font-size: inherit;
+}
+
+.wc-result-content strong {
+    font-weight: 700;
+    color: #2d3748;
+}
+
+.wc-result-content li {
+    margin: 4px 0;
+    padding-left: 4px;
+}
+
+.wc-result-content .wc-divider {
+    border: none;
+    border-top: 1px solid #e0e3e8;
+    margin: 16px 0;
+}

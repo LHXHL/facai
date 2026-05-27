@@ -123,14 +123,14 @@ class SpiderCore:
                 limit=limit
             )
 
-            # 读取后将status设置为1（已处理）
-            for traffic in traffic_list:
-                if traffic.get('_id'):
-                    self.traffic_db.db_handler.update_one(
-                        collection_name,
-                        {'_id': traffic['_id']},
-                        {'status': 1}
-                    )
+            # 读取后将status设置为1（已处理）- 批量更新
+            traffic_ids = [t['_id'] for t in traffic_list if t.get('_id')]
+            if traffic_ids:
+                self.traffic_db.db_handler.update_many(
+                    collection_name,
+                    {'_id': {'$in': traffic_ids}},
+                    {'status': 1}
+                )
 
             # http流量请求基础过滤,过滤出子域名、website、http流量
             list_subdomain = []
@@ -153,7 +153,7 @@ class SpiderCore:
             list_website = list(set(list_website))
             list_subdomain = list(set(list_subdomain))
             count = len(traffic_list)
-            #print(list_http)
+            #print(list_website)
             return {
                 'success': True,
                 'count': count,

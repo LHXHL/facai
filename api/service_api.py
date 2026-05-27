@@ -42,7 +42,6 @@ class ServiceAPI:
             'chrome_headless_port': None,
             'chrome_normal': False,
             'chrome_normal_port': None,
-            'burp': False,
             'spider': False
         }
         
@@ -57,8 +56,7 @@ class ServiceAPI:
                     'chrome_headless_port': data.get('chrome_headless', {}).get('port'),
                     'chrome_normal': data.get('chrome_normal', {}).get('running', False),
                     'chrome_normal_port': data.get('chrome_normal', {}).get('port'),
-                    'burp': data.get('burp', {}).get('running', False),
-                    'spider': False
+                    'spider': data.get('spider', {}).get('running', False)
                 }
         except Exception as e:
             print(f"获取服务状态失败: {e}")

@@ -4,8 +4,8 @@ HTML 收集模块
 从HTML中提取URL，导入traffic表
 """
 
+import re
 from concurrent.futures import ThreadPoolExecutor, as_completed
-from urlextract import URLExtract
 from database.mongodb_handler import MongoDBHandler
 from database.project_database import ProjectDatabase
 from database.traffic_database import TrafficDatabase
@@ -13,11 +13,12 @@ from service.Class_Core_Function import Class_Core_Function
 
 
 # ---------------------------------------------------------
-# 1. 初始化URL提取器 (基于TLD数据库，线程安全)
+# 1. 极简正则URL提取（无回溯，高性能）
 # ---------------------------------------------------------
 
-# 全局URLExtract实例（线程安全，基于公开后缀列表）
-URL_EXTRACTOR = URLExtract()
+# 核心优化：基于否定字符集 [^...] 的匹配，引擎不需要试错，效率极高
+# 只要以 http(s) 开头，一直匹配到空白字符或常见标点/括号即停止
+URL_PATTERN = re.compile(r'https?://[^\s\'"<>()[\]{}]+')
 
 # 性能配置
 MAX_HTML_SIZE = 2 * 1024 * 1024  # 单个HTML最大2MB
@@ -31,7 +32,7 @@ MAX_WORKERS = 8  # 线程池大小
 def extract_urls(text):
     """
     从文本中提取URL（纯函数，线程安全）
-    使用 urlextract 库基于TLD数据库，更准确高效
+    使用极简正则，无回溯高性能
     
     :param text: HTML文本
     :return: set(urls)
@@ -45,10 +46,10 @@ def extract_urls(text):
     
     urls = set()
     
-    # 使用 urlextract 提取URL（基于TLD数据库，自动识别域名边界）
-    for url in URL_EXTRACTOR.gen_urls(text):
+    # 正则提取URL，清理末尾特殊字符
+    for url in URL_PATTERN.findall(text):
         if len(url) > 10:  # 过滤太短的URL
-            # 清理URL末尾的特殊字符
+            # 清理URL末尾的特殊字符（正则可能吃到尾部标点）
             url = url.rstrip('.,;:!?\'"<>)]}')
             urls.add(url)
     

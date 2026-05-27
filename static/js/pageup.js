@@ -6,9 +6,10 @@ var PageUp = {
      * @param {number} options.totalPages 总页数
      * @param {function} options.onPageChange 页码变更回调函数
      * @param {number} options.visiblePages 可见页码数量（默认10）
+     * @param {jQuery} options.container 可选，分页容器的jQuery对象，用于事件绑定
      * @returns {string} 翻页HTML
      */
-    generatePagination: function(options) {
+    generatePagination: function(options, container) {
         var defaults = {
             currentPage: 1,
             totalPages: 1,
@@ -77,181 +78,46 @@ var PageUp = {
         
         html += '</div>';
         
-        // 绑定事件
+        // 使用闭包保存回调引用
+        var pageChangeCallback = onPageChange;
+        var totalPagesRef = totalPages;
+        
+        // 使用 setTimeout 确保 DOM 已经渲染完成后再绑定事件
         setTimeout(function() {
-            $('.pagination-btn').off('click').on('click', function() {
-                var page = parseInt($(this).data('page'));
-                if (!isNaN(page) && page >= 1 && page <= totalPages) {
-                    onPageChange(page);
-                }
-            });
-            
-            $('.pagination-jump-btn').off('click').on('click', function() {
-                var page = parseInt($('.pagination-input').val());
-                if (!isNaN(page) && page >= 1 && page <= totalPages) {
-                    onPageChange(page);
-                }
-            });
-            
-            $('.pagination-input').off('keypress').on('keypress', function(e) {
-                if (e.key === 'Enter') {
-                    var page = parseInt($(this).val());
-                    if (!isNaN(page) && page >= 1 && page <= totalPages) {
-                        onPageChange(page);
+            // 直接在传入的 container 上绑定事件，使用事件委托
+            // 不再通过复杂的查找链，直接用 container 本身作为委托根
+            if (container && container instanceof jQuery && container.length) {
+                container.off('.pageUp');
+
+                container.on('click.pageUp', '.pagination-btn', function(e) {
+                    e.preventDefault();
+                    var $btn = $(this);
+                    var page = parseInt($btn.data('page'));
+                    if (!isNaN(page) && page >= 1 && page <= totalPagesRef) {
+                        pageChangeCallback(page);
                     }
-                }
-            });
+                });
+
+                container.on('click.pageUp', '.pagination-jump-btn', function(e) {
+                    e.preventDefault();
+                    var page = parseInt(container.find('.pagination-input').val());
+                    if (!isNaN(page) && page >= 1 && page <= totalPagesRef) {
+                        pageChangeCallback(page);
+                    }
+                });
+
+                container.on('keypress.pageUp', '.pagination-input', function(e) {
+                    if (e.key === 'Enter') {
+                        e.preventDefault();
+                        var page = parseInt($(this).val());
+                        if (!isNaN(page) && page >= 1 && page <= totalPagesRef) {
+                            pageChangeCallback(page);
+                        }
+                    }
+                });
+            }
         }, 0);
         
         return html;
-    },
-    
-    /**
-     * 样式
-     */
-    getStyles: function() {
-        return `
-            .pagination {
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                gap: 8px;
-                margin: 20px 0;
-                flex-wrap: wrap;
-            }
-            
-            .pagination-btn {
-                padding: 8px 16px;
-                border: 1px solid #e2e8f0;
-                border-radius: 8px;
-                background: #ffffff;
-                color: #4a5568;
-                cursor: pointer;
-                transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-                font-size: 14px;
-                font-weight: 500;
-            }
-            
-            .pagination-btn:hover:not(.disabled) {
-                background: #667eea;
-                color: #ffffff;
-                border-color: #667eea;
-                transform: translateY(-1px);
-                box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
-            }
-            
-            .pagination-btn.active {
-                background: #667eea;
-                color: #ffffff;
-                border-color: #667eea;
-            }
-            
-            .pagination-btn.disabled {
-                opacity: 0.5;
-                cursor: not-allowed;
-            }
-            
-            .pagination-ellipsis {
-                padding: 8px 16px;
-                color: #718096;
-                font-size: 14px;
-            }
-            
-            .pagination-info {
-                margin-left: 20px;
-                display: flex;
-                align-items: center;
-                gap: 12px;
-                font-size: 14px;
-                color: #718096;
-            }
-            
-            .pagination-jump {
-                display: flex;
-                align-items: center;
-                gap: 8px;
-            }
-            
-            .pagination-input {
-                width: 60px;
-                padding: 8px 12px;
-                border: 1px solid #e2e8f0;
-                border-radius: 6px;
-                font-size: 14px;
-                text-align: center;
-            }
-            
-            .pagination-input:focus {
-                outline: none;
-                border-color: #667eea;
-                box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
-            }
-            
-            .pagination-jump-btn {
-                padding: 8px 16px;
-                border: 1px solid #e2e8f0;
-                border-radius: 6px;
-                background: #ffffff;
-                color: #4a5568;
-                cursor: pointer;
-                transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-                font-size: 14px;
-            }
-            
-            .pagination-jump-btn:hover {
-                background: #667eea;
-                color: #ffffff;
-                border-color: #667eea;
-            }
-            
-            @media (max-width: 768px) {
-                .pagination {
-                    gap: 4px;
-                }
-                
-                .pagination-btn {
-                    padding: 6px 12px;
-                    font-size: 12px;
-                }
-                
-                .pagination-ellipsis {
-                    padding: 6px 12px;
-                    font-size: 12px;
-                }
-                
-                .pagination-info {
-                    margin-left: 10px;
-                    gap: 8px;
-                    font-size: 12px;
-                }
-                
-                .pagination-input {
-                    width: 50px;
-                    padding: 6px 10px;
-                    font-size: 12px;
-                }
-                
-                .pagination-jump-btn {
-                    padding: 6px 12px;
-                    font-size: 12px;
-                }
-            }
-        `;
-    },
-    
-    /**
-     * 初始化样式
-     */
-    initStyles: function() {
-        if (!$('#pageup-styles').length) {
-            var style = $('<style id="pageup-styles"></style>');
-            style.text(this.getStyles());
-            $('head').append(style);
-        }
     }
 };
-
-// 初始化样式
-$(document).ready(function() {
-    PageUp.initStyles();
-});

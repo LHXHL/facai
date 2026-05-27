@@ -43,14 +43,20 @@ function ScanerManualModeModule() {
             </div>
             <div class="panel-body">
                 <div class="input-wrapper" id="burpWrapper">
-                    <textarea id="burpText" placeholder="粘贴 Burp Suite 的原始请求...&#10;&#10;示例：&#10;GET /api/user?id=123 HTTP/1.1&#10;Host: example.com&#10;User-Agent: Mozilla/5.0&#10;&#10;请求体内容"></textarea>
+                    <div class="highlight-container">
+                        <pre class="highlight-overlay" id="burpHighlight"></pre>
+                        <textarea id="burpText" placeholder="粘贴 Burp Suite 的原始请求...&#10;&#10;示例：&#10;GET /api/user?id=123 HTTP/1.1&#10;Host: example.com&#10;User-Agent: Mozilla/5.0&#10;&#10;请求体内容"></textarea>
+                    </div>
                     <div class="input-hint">
                         <span class="hint-icon">💡</span>
                         <span>支持直接粘贴 Burp Suite 复制的请求，按 Ctrl+Enter 快速扫描</span>
                     </div>
                 </div>
                 <div class="input-wrapper" id="jsonWrapper" style="display:none;">
-                    <textarea id="jsonText" placeholder='输入 JSON 格式请求...&#10;&#10;示例：&#10;{&#10;  "method": "GET",&#10;  "url": "https://example.com/api/user?id=123",&#10;  "headers": {&#10;    "Cookie": "session=abc123"&#10;  },&#10;  "body": ""&#10;}'></textarea>
+                    <div class="highlight-container">
+                        <pre class="highlight-overlay" id="jsonHighlight"></pre>
+                        <textarea id="jsonText" placeholder='输入 JSON 格式请求...&#10;&#10;示例：&#10;{&#10;  "method": "GET",&#10;  "url": "https://example.com/api/user?id=123",&#10;  "headers": {&#10;    "Cookie": "session=abc123"&#10;  },&#10;  "body": ""&#10;}'></textarea>
+                    </div>
                     <div class="input-hint">
                         <span class="hint-icon">💡</span>
                         <span>JSON 格式便于程序化调用，按 Ctrl+Enter 快速扫描</span>
@@ -82,8 +88,29 @@ function ScanerManualModeModule() {
         
         this.bindEvents(container);
         
-        // 从本地存储恢复之前保存的状态
-        this.restoreFromStorage(container);
+        this._initHighlight(container);
+        
+        if (data && data.initialData) {
+            if (data.initialData.burpText) {
+                container.find('#burpText').val(data.initialData.burpText);
+                this.burpToJson(container);
+                container.find('.mode-tab').removeClass('active');
+                container.find('.mode-tab[data-mode="burp"]').addClass('active');
+                this._updateHighlight(container, 'burp');
+                this._updateHighlight(container, 'json');
+            } else if (data.initialData.jsonText) {
+                container.find('#jsonText').val(data.initialData.jsonText);
+                this.jsonToBurp(container);
+                container.find('.mode-tab').removeClass('active');
+                container.find('.mode-tab[data-mode="json"]').addClass('active');
+                container.find('#burpWrapper').hide();
+                container.find('#jsonWrapper').show();
+                this._updateHighlight(container, 'burp');
+                this._updateHighlight(container, 'json');
+            }
+        } else {
+            this.restoreFromStorage(container);
+        }
     };
     
     this.bindEvents = function(container) {
@@ -99,10 +126,12 @@ function ScanerManualModeModule() {
                 container.find('#burpWrapper').show();
                 container.find('#jsonWrapper').hide();
                 self.jsonToBurp(container);
+                self._updateHighlight(container, 'burp');
             } else {
                 container.find('#burpWrapper').hide();
                 container.find('#jsonWrapper').show();
                 self.burpToJson(container);
+                self._updateHighlight(container, 'json');
             }
             
             // 保存模式切换
@@ -113,12 +142,13 @@ function ScanerManualModeModule() {
         container.find('#burpText').off('input').on('input', function() {
             self.burpToJson(container);
             self.saveToStorage(container);
+            self._updateHighlight(container, 'burp');
         });
         
-        // JSON输入自动同步并保存
         container.find('#jsonText').off('input').on('input', function() {
             self.jsonToBurp(container);
             self.saveToStorage(container);
+            self._updateHighlight(container, 'json');
         });
         
         // 开始扫描
@@ -184,7 +214,8 @@ function ScanerManualModeModule() {
                     method: method,
                     url: url,
                     headers: headers,
-                    body: body
+                    body: body,
+                    body_encoding: 'plain'
                 }, null, 2));
             }
         } catch (e) {}
@@ -358,6 +389,8 @@ function ScanerManualModeModule() {
     this.clearAll = function(container) {
         container.find('#burpText').val('');
         container.find('#jsonText').val('');
+        container.find('#burpHighlight').html('');
+        container.find('#jsonHighlight').html('');
         container.find('#scanStatus').hide();
         container.find('#resultBody').html(`
             <div class="empty-state">
@@ -369,10 +402,40 @@ function ScanerManualModeModule() {
     };
     
     this.escapeHtml = function(text) {
-        if (!text) return '';
-        var div = document.createElement('div');
-        div.textContent = text;
-        return div.innerHTML;
+        return FacaiUtils.escapeHtml(text);
+    };
+    
+    this._initHighlight = function(container) {
+        var self = this;
+        
+        container.find('#burpText, #jsonText').off('scroll.highlight').on('scroll.highlight', function() {
+            var id = $(this).attr('id') === 'burpText' ? 'burpHighlight' : 'jsonHighlight';
+            container.find('#' + id).scrollTop($(this).scrollTop());
+            container.find('#' + id).scrollLeft($(this).scrollLeft());
+        });
+        
+        self._updateHighlight(container, 'burp');
+        self._updateHighlight(container, 'json');
+    };
+    
+    this._updateHighlight = function(container, type) {
+        if (!window.SpeedHighlight) return;
+        
+        var textareaId = type === 'burp' ? '#burpText' : '#jsonText';
+        var highlightId = type === 'burp' ? '#burpHighlight' : '#jsonHighlight';
+        var lang = type === 'burp' ? 'http' : 'json';
+        
+        var text = container.find(textareaId).val();
+        var $overlay = container.find(highlightId);
+        
+        if (!text) {
+            $overlay.html('');
+            return;
+        }
+        
+        SpeedHighlight.highlightText(text, lang, false).then(function(html) {
+            $overlay.html(html);
+        }).catch(function() {});
     };
     
     /**
@@ -423,6 +486,9 @@ function ScanerManualModeModule() {
                     container.find('#jsonWrapper').show();
                 }
             }
+            
+            self._updateHighlight(container, 'burp');
+            self._updateHighlight(container, 'json');
         } catch (e) {
             console.warn('恢复状态失败:', e);
         }

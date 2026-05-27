@@ -22,20 +22,21 @@ function HttpModule() {
                             </div>
                         </div>
                     </div>
-                    <div class="form-group p-3">
+                    <div class="form-group">
                         <div class="row mb-3">
-                            <div class="col-md-3">
+                            <div class="col-md-2">
                                 <select class="form-control" id="searchType">
                                     <option value="url">URL</option>
                                     <option value="title">标题</option>
                                     <option value="subdomain">子域名</option>
                                     <option value="key">Key</option>
+                                    <option value="html_md5">HTML MD5</option>
                                 </select>
                             </div>
-                            <div class="col-md-4">
+                            <div class="col-md-5">
                                 <input type="text" class="form-control" id="searchHttp" placeholder="搜索URL、标题、子域名或Key...">
                             </div>
-                            <div class="col-md-3">
+                            <div class="col-md-2">
                                 <button class="btn btn-primary" id="searchBtn">搜索</button>
                                 <button class="btn btn-secondary" id="clearSearchBtn">清除</button>
                             </div>
@@ -57,7 +58,7 @@ function HttpModule() {
                             <tbody id="httpList"></tbody>
                         </table>
                     </div>
-                    <div id="pagination"></div>
+                    <div id="httpPagination" class="module-pagination"></div>
                 </div>
             </div>
         </div>
@@ -158,11 +159,11 @@ function HttpModule() {
                             self.currentPage = page;
                             self.loadHttp();
                         }
-                    });
-                    $('#pagination').html(paginationHtml);
+                    }, self.container);
+                    self.container.find('.module-pagination').html(paginationHtml);
                 } else {
                     tbody.append('<tr><td colspan="8" class="text-center text-muted">暂无HTTP数据</td></tr>');
-                    $('#pagination').html('');
+                    self.container.find('.module-pagination').html('');
                 }
             },
             error: function(xhr) {
@@ -173,7 +174,7 @@ function HttpModule() {
                 } else {
                     tbody.append('<tr><td colspan="8" class="text-center text-danger">加载失败，请重试</td></tr>');
                 }
-                $('#pagination').html('');
+                self.container.find('.module-pagination').html('');
             }
         });
     };
@@ -216,14 +217,14 @@ function HttpModule() {
             self.loadHttp();
         });
 
-        // 刷新按钮
-        $('#refreshHttp').on('click', function() {
+        // 刷新按钮 - 使用事件委托，避免动态渲染后事件失效
+        this.container.on('click', '#refreshHttp', function() {
             self.currentPage = 1;
             self.loadHttp();
         });
 
-        // 清空按钮
-        $('#clearHttp').on('click', function() {
+        // 清空按钮 - 使用事件委托
+        this.container.on('click', '#clearHttp', function() {
             if (confirm('确定要清空所有HTTP数据吗？')) {
                 $.ajax({
                     url: '/api/assets/http/clear',
@@ -241,26 +242,26 @@ function HttpModule() {
             }
         });
 
-        // 搜索按钮
-        $('#searchBtn').on('click', function() {
-            self.searchType = $('#searchType').val();
-            self.searchKeyword = $('#searchHttp').val();
+        // 搜索按钮 - 使用事件委托
+        this.container.on('click', '#searchBtn', function() {
+            self.searchType = self.container.find('#searchType').val();
+            self.searchKeyword = self.container.find('#searchHttp').val();
             self.currentPage = 1;
             self.loadHttp();
         });
 
-        // 清除搜索按钮
-        $('#clearSearchBtn').on('click', function() {
-            $('#searchHttp').val('');
+        // 清除搜索按钮 - 使用事件委托
+        this.container.on('click', '#clearSearchBtn', function() {
+            self.container.find('#searchHttp').val('');
             self.searchKeyword = '';
             self.currentPage = 1;
             self.loadHttp();
         });
 
-        // 搜索框回车搜索
-        $('#searchHttp').on('keypress', function(e) {
+        // 搜索框回车搜索 - 使用事件委托
+        this.container.on('keypress', '#searchHttp', function(e) {
             if (e.which === 13) {
-                $('#searchBtn').click();
+                self.container.find('#searchBtn').click();
             }
         });
 
@@ -349,10 +350,10 @@ function HttpModule() {
             httpTypeText = '文件 (不可渲染)';
         }
         
-        // 格式化JSON
-        var headersText = self.formatJson(http.headers);
-        var bodyText = self.formatJson(http.body);
-        var headersResponseText = self.formatJson(http.headers_response);
+        // 格式化 headers / body（处理 object 和 string 两种存储格式）
+        var headersText = self._formatKeyValue(http.headers);
+        var bodyText = self._formatBody(http.body);
+        var headersResponseText = self._formatKeyValue(http.headers_response);
         var standardJson = self.formatJson({
             url_path: http.url_path,
             url_generalization: http.url_generalization,
@@ -366,7 +367,7 @@ function HttpModule() {
         if (http.screenshot) {
             screenshotHtml = `
                 <div class="screenshot-preview">
-                    <img src="/${http.screenshot}" alt="页面截图" onclick="window.open('/${http.screenshot}', '_blank')">
+                    <img src="/${http.screenshot}" alt="页面截图" style="max-width:100%;" onclick="window.open('/${http.screenshot}', '_blank')">
                     <div class="screenshot-hint">点击查看大图</div>
                 </div>
             `;
@@ -380,7 +381,7 @@ function HttpModule() {
                             <h5 class="modal-title">HTTP请求详情</h5>
                             <button type="button" class="close">&times;</button>
                         </div>
-                        <div class="modal-body">
+                        <div class="modal-body" style="overflow-x:auto;">
                             <div class="detail-tabs">
                                 <button class="detail-tab active" data-tab="basic">基本信息</button>
                                 <button class="detail-tab" data-tab="request">请求信息</button>
@@ -390,8 +391,8 @@ function HttpModule() {
                             
                             <div class="detail-content active" id="basicTab">
                                 <table class="detail-table">
-                                    <tr><td class="label">URL</td><td class="value"><code>${self.escapeHtml(http.url || '-')}</code></td></tr>
-                                    <tr><td class="label">当前URL</td><td class="value"><code>${self.escapeHtml(http.current_url || '-')}</code></td></tr>
+                                    <tr><td class="label">URL</td><td class="value"><code style="word-break:break-all;">${self.escapeHtml(http.url || '-')}</code></td></tr>
+                                    <tr><td class="label">当前URL</td><td class="value"><code style="word-break:break-all;">${self.escapeHtml(http.current_url || '-')}</code></td></tr>
                                     <tr><td class="label">标题</td><td class="value">${self.escapeHtml(http.title || '-')}</td></tr>
                                     <tr>
                                         <td class="label">方法</td>
@@ -410,7 +411,7 @@ function HttpModule() {
                                     <tr><td class="label">标签</td><td class="value">${tagsHtml}</td></tr>
                                     <tr><td class="label">截图</td><td class="value">${screenshotHtml}</td></tr>
                                     <tr><td class="label">HTML长度</td><td class="value">${(http.html_len || 0).toLocaleString()} bytes</td></tr>
-                                    <tr><td class="label">HTML MD5</td><td class="value"><code>${self.escapeHtml(http.html_md5 || '-')}</code></td></tr>
+                                    <tr><td class="label">HTML MD5</td><td class="value"><code style="word-break:break-all;">${self.escapeHtml(http.html_md5 || '-')}</code></td></tr>
                                     <tr><td class="label">WAF</td><td class="value">${http.waf || '无'}</td></tr>
                                     <tr><td class="label">首次访问</td><td class="value">${self.escapeHtml(http.time_first || '-')}</td></tr>
                                     <tr><td class="label">更新时间</td><td class="value">${self.escapeHtml(http.time_update || '-')}</td></tr>
@@ -420,25 +421,25 @@ function HttpModule() {
                             <div class="detail-content" id="requestTab">
                                 <div class="code-section">
                                     <h6>请求头</h6>
-                                    <pre>${self.escapeHtml(headersText)}</pre>
+                                    <pre style="white-space:pre-wrap;word-break:break-all;">${self.escapeHtml(headersText)}</pre>
                                 </div>
                                 <div class="code-section">
                                     <h6>请求体</h6>
-                                    <pre>${self.escapeHtml(bodyText)}</pre>
+                                    <pre style="white-space:pre-wrap;word-break:break-all;">${self.escapeHtml(bodyText)}</pre>
                                 </div>
                             </div>
                             
                             <div class="detail-content" id="responseTab">
                                 <div class="code-section">
                                     <h6>响应头</h6>
-                                    <pre>${self.escapeHtml(headersResponseText)}</pre>
+                                    <pre style="white-space:pre-wrap;word-break:break-all;">${self.escapeHtml(headersResponseText)}</pre>
                                 </div>
                             </div>
                             
                             <div class="detail-content" id="standardTab">
                                 <div class="code-section">
                                     <h6>标准化信息</h6>
-                                    <pre>${self.escapeHtml(standardJson)}</pre>
+                                    <pre style="white-space:pre-wrap;word-break:break-all;">${self.escapeHtml(standardJson)}</pre>
                                 </div>
                             </div>
                         </div>
@@ -496,11 +497,55 @@ function HttpModule() {
     };
     
     this.escapeHtml = function(text) {
-        if (!text) return '';
-        var div = document.createElement('div');
-        div.textContent = text;
-        return div.innerHTML;
+        return FacaiUtils.escapeHtml(text);
     };
+
+    // 将 headers 对象或 JSON 字符串格式化为 "Key: Value" 文本
+    this._formatKeyValue = function(headers) {
+        if (!headers) return '';
+        // 如果已经是字符串（JSON 字符串），直接返回
+        if (typeof headers === 'string') {
+            try {
+                // 尝试解析 JSON 后格式化
+                var parsed = JSON.parse(headers);
+                if (typeof parsed === 'object') {
+                    return Object.keys(parsed).map(function(k) {
+                        return k + ': ' + parsed[k];
+                    }).join('\n');
+                }
+            } catch (e) {
+                // 不是 JSON，就当纯文本返回
+                return headers;
+            }
+        }
+        // object 类型
+        if (typeof headers === 'object') {
+            return Object.keys(headers).map(function(k) {
+                return k + ': ' + headers[k];
+            }).join('\n');
+        }
+        return String(headers);
+    };
+
+    // 将 body 格式化为可读文本
+    this._formatBody = function(body) {
+        if (!body) return '';
+        if (typeof body === 'string') {
+            try {
+                var parsed = JSON.parse(body);
+                if (typeof parsed === 'object') {
+                    return JSON.stringify(parsed, null, 2);
+                }
+            } catch (e) {
+                return body;
+            }
+        }
+        if (typeof body === 'object') {
+            return JSON.stringify(body, null, 2);
+        }
+        return String(body);
+    };
+
 this.formatAsBurp = function(http) {
         var method = http.method || 'GET';
         var url = http.url || '';
@@ -549,7 +594,7 @@ this.formatAsBurp = function(http) {
                     };
 
                     // 打开新的tab进行重放
-                    TabManager.openTab('tools', 'HTTP请求重放', {
+                    TabManager.openTab('tools/replay', 'HTTP请求重放', {
                         subModule: 'replay',
                         initialData: initialData
                     });

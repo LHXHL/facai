@@ -1,4 +1,4 @@
-.html-grid {
+﻿.html-grid {
     margin-top: 20px;
 }
 
@@ -8,25 +8,25 @@
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
     overflow: hidden;
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    border: 1px solid #e2e8f0;
+    border: 1px solid #e5e5e5;
     height: 100%;
     display: flex;
     flex-direction: column;
 }
 
 .html-card:hover {
-    box-shadow: 0 12px 24px rgba(102, 126, 234, 0.15);
+    box-shadow: 0 12px 24px rgba(37, 99, 235, 0.15);
     transform: translateY(-4px);
-    border-color: rgba(102, 126, 234, 0.3);
+    border-color: rgba(37, 99, 235, 0.3);
 }
 
 .html-header {
-    background: linear-gradient(135deg, #f7fafc 0%, #edf2f7 100%);
+    background: #fafafa;
     padding: 12px 16px;
     display: flex;
     justify-content: space-between;
     align-items: center;
-    border-bottom: 1px solid #e2e8f0;
+    border-bottom: 1px solid #e5e5e5;
 }
 
 .html-size {
@@ -35,9 +35,9 @@
     font-size: 12px;
     font-weight: 700;
     text-transform: uppercase;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: #2563eb;
     color: #ffffff;
-    box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);
+    box-shadow: 0 2px 8px rgba(37, 99, 235, 0.3);
 }
 
 .html-actions {
@@ -62,7 +62,7 @@
     margin: 0 0 12px 0;
     font-size: 13px;
     font-weight: 700;
-    color: #667eea;
+    color: #1a1a1a;
     word-break: break-all;
     font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
 }
@@ -70,11 +70,11 @@
 .html-preview {
     margin: 0;
     padding: 10px;
-    background: #f7fafc;
-    border: 1px solid #e2e8f0;
+    background: #fafafa;
+    border: 1px solid #e5e5e5;
     border-radius: 8px;
     font-size: 11px;
-    color: #4a5568;
+    color: #555;
     overflow: hidden;
     text-overflow: ellipsis;
     display: -webkit-box;
@@ -89,8 +89,8 @@
 
 .html-footer {
     padding: 10px 16px;
-    background: #f7fafc;
-    border-top: 1px solid #e2e8f0;
+    background: #fafafa;
+    border-top: 1px solid #e5e5e5;
     text-align: right;
 }
 
@@ -105,15 +105,15 @@
     color: #2d3748;
     background-color: #fff;
     background-clip: padding-box;
-    border: 1px solid #cbd5e0;
+    border: 1px solid #ddd;
     border-radius: 8px;
     transition: all 0.3s;
 }
 
 .card .form-control:focus {
-    border-color: #667eea;
+    border-color: #2563eb;
     outline: 0;
-    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
 }
 
 /* 下拉框特殊样式 */

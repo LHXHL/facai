@@ -31,8 +31,32 @@ class ProjectDatabase:
         return self.db_handler.insert_one('project_config', project_data)
 
     def update_project(self, project_name, project_data):
-        """更新项目"""
-        return self.db_handler.update_one('project_config', {'Project': project_name}, project_data)
+        """更新项目（完全替换文档，传入完整数据）"""
+        # 保留原有的 created_at 和 status_code 字段
+        existing = self.get_project_by_name(project_name)
+        if existing:
+            # 保留原有字段，不允许前端覆盖
+            project_data['created_at'] = existing.get('created_at', project_data.get('created_at', ''))
+            project_data['status_code'] = existing.get('status_code', project_data.get('status_code', 0))
+            # 移除 _id，避免替换时出错
+            project_data.pop('_id', None)
+        # 记录完整数据用于调试
+        print(f"[ProjectDB] update_project: project_name={project_name}, fields={list(project_data.keys())}")
+        print(f"[ProjectDB] new field spider_cdp_service: {project_data.get('spider_cdp_service', 'NOT_FOUND')}")
+        result = self.db_handler.replace_one('project_config', {'Project': project_name}, project_data)
+        print(f"[ProjectDB] replace_one result: matched={result.matched_count if result else None}, modified={result.modified_count if result else None}")
+        return result
+
+    def partial_update(self, project_name, update_data):
+        """部分更新项目（$set，只修改传入的字段，不影响其他字段）"""
+        update_data.pop('_id', None)
+        update_data.pop('Project', None)  # Project 是查询条件，不是更新字段
+        if not update_data:
+            return None
+        print(f"[ProjectDB] partial_update: project_name={project_name}, fields={list(update_data.keys())}")
+        result = self.db_handler.update_one('project_config', {'Project': project_name}, update_data)
+        print(f"[ProjectDB] partial_update result: matched={result.matched_count if result else None}, modified={result.modified_count if result else None}")
+        return result
 
     def delete_project(self, project_name):
         """删除项目"""
@@ -43,6 +67,7 @@ class ProjectDatabase:
         project = self.db_handler.find_one('project_config', {'status_code': 1})
         if project and '_id' in project:
             project['_id'] = str(project['_id'])
+        #print(f"[ProjectDB] get_running_project: {project}")
         return project
 
     def start_project(self, project_name):

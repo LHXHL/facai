@@ -1,0 +1,400 @@
+/* ============================================================
+   CDP管理模块样式
+   ============================================================ */
+
+.spider-cdp-container .cdp-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+    gap: 12px;
+}
+
+.spider-cdp-container .cdp-header h2 {
+    margin: 0;
+    font-size: 18px;
+    font-weight: 600;
+    color: #333;
+}
+
+.spider-cdp-container .cdp-header .header-actions {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+}
+
+/* 连接状态 */
+.spider-cdp-container .cdp-status-bar {
+    background: #fff;
+    border: 1px solid #e8e8e8;
+    border-radius: 8px;
+    padding: 14px 20px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+}
+
+.spider-cdp-container .cdp-status-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 13px;
+}
+
+.spider-cdp-container .cdp-status-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+}
+
+.spider-cdp-container .cdp-status-dot.online {
+    background: #16a34a;
+    box-shadow: 0 0 6px rgba(22, 163, 74, 0.5);
+}
+
+.spider-cdp-container .cdp-status-dot.offline {
+    background: #555;
+}
+
+.spider-cdp-container .cdp-status-dot.pending {
+    background: #faad14;
+    animation: cdp-pulse 1.5s ease-in-out infinite;
+}
+
+@keyframes cdp-pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.4; }
+}
+
+/* Tab 网格 */
+.spider-cdp-container .tab-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 16px;
+    margin-bottom: 20px;
+}
+
+.spider-cdp-container .tab-card {
+    background: #fff;
+    border: 1px solid #e8e8e8;
+    border-radius: 8px;
+    overflow: hidden;
+    transition: box-shadow 0.2s, border-color 0.2s;
+}
+
+.spider-cdp-container .tab-card:hover {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    border-color: #1a1a1a;
+}
+
+.spider-cdp-container .tab-card.in-range {
+    border-left: 3px solid #16a34a;
+}
+
+.spider-cdp-container .tab-card.out-range {
+    border-left: 3px solid #555;
+}
+
+.spider-cdp-container .tab-card-header {
+    background: #fafafa;
+    padding: 12px 16px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-bottom: 1px solid #f0f0f0;
+}
+
+.spider-cdp-container .tab-card-badge {
+    font-size: 11px;
+    padding: 2px 8px;
+    border-radius: 10px;
+    font-weight: 500;
+}
+
+.spider-cdp-container .tab-card-badge.in-range {
+    background: #e6f7ed;
+    color: #16a34a;
+}
+
+.spider-cdp-container .tab-card-badge.out-range {
+    background: #fff1f0;
+    color: #555;
+}
+
+.spider-cdp-container .tab-card-body {
+    padding: 14px 16px;
+}
+
+.spider-cdp-container .tab-info-row {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 8px;
+    font-size: 13px;
+    align-items: flex-start;
+}
+
+.spider-cdp-container .tab-info-row:last-child {
+    margin-bottom: 0;
+}
+
+.spider-cdp-container .tab-info-label {
+    color: #999;
+    min-width: 60px;
+    flex-shrink: 0;
+}
+
+.spider-cdp-container .tab-info-value {
+    color: #333;
+    word-break: break-all;
+    flex: 1;
+}
+
+.spider-cdp-container .tab-info-value a {
+    color: #2563eb;
+    text-decoration: none;
+}
+
+.spider-cdp-container .tab-info-value a:hover {
+    text-decoration: underline;
+}
+
+.spider-cdp-container .tab-card-url {
+    font-size: 12px;
+    color: #666;
+    background: #f5f5f5;
+    padding: 8px 12px;
+    border-radius: 4px;
+    word-break: break-all;
+    margin-bottom: 10px;
+}
+
+/* 抓取结果区 */
+.spider-cdp-container .scrape-results {
+    background: #fff;
+    border: 1px solid #e8e8e8;
+    border-radius: 8px;
+    padding: 20px;
+    margin-bottom: 20px;
+}
+
+.spider-cdp-container .scrape-results h3 {
+    font-size: 15px;
+    font-weight: 600;
+    color: #333;
+    margin: 0 0 16px 0;
+}
+
+.spider-cdp-container .scrape-summary {
+    display: flex;
+    gap: 24px;
+    flex-wrap: wrap;
+    margin-bottom: 16px;
+}
+
+.spider-cdp-container .scrape-stat {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 13px;
+}
+
+.spider-cdp-container .scrape-stat-num {
+    font-weight: 700;
+    font-size: 16px;
+    color: #1a1a1a;
+}
+
+.spider-cdp-container .scrape-detail-tabs {
+    margin-bottom: 12px;
+}
+
+.spider-cdp-container .scrape-detail-tabs .tab-nav {
+    display: flex;
+    gap: 0;
+    border-bottom: 2px solid #f0f0f0;
+}
+
+.spider-cdp-container .scrape-detail-tabs .tab-nav-item {
+    padding: 8px 16px;
+    font-size: 13px;
+    color: #666;
+    cursor: pointer;
+    border-bottom: 2px solid transparent;
+    margin-bottom: -2px;
+    transition: color 0.2s, border-color 0.2s;
+}
+
+.spider-cdp-container .scrape-detail-tabs .tab-nav-item:hover {
+    color: #1a1a1a;
+}
+
+.spider-cdp-container .scrape-detail-tabs .tab-nav-item.active {
+    color: #1a1a1a;
+    border-bottom-color: #2563eb;
+    font-weight: 600;
+}
+
+.spider-cdp-container .scrape-detail-content {
+    max-height: 400px;
+    overflow-y: auto;
+    font-family: 'Consolas', 'Monaco', monospace;
+    font-size: 12px;
+    line-height: 1.8;
+}
+
+.spider-cdp-container .scrape-detail-content pre {
+    margin: 0;
+    white-space: pre-wrap;
+    word-break: break-all;
+    color: #333;
+}
+
+/* 空状态 */
+.spider-cdp-container .cdp-empty {
+    text-align: center;
+    padding: 60px 20px;
+    color: #999;
+}
+
+.spider-cdp-container .cdp-empty-icon {
+    font-size: 48px;
+    margin-bottom: 16px;
+    opacity: 0.5;
+}
+
+.spider-cdp-container .cdp-empty p {
+    font-size: 14px;
+    margin: 0;
+}
+
+/* 操作日志 */
+.spider-cdp-container .cdp-log {
+    background: #fff;
+    border: 1px solid #e8e8e8;
+    border-radius: 8px;
+    padding: 20px;
+}
+
+.spider-cdp-container .cdp-log h3 {
+    font-size: 15px;
+    font-weight: 600;
+    color: #333;
+    margin: 0 0 12px 0;
+}
+
+.spider-cdp-container .cdp-log-content {
+    background: #1e1e1e;
+    border-radius: 6px;
+    padding: 14px;
+    max-height: 300px;
+    overflow-y: auto;
+    font-family: 'Consolas', 'Monaco', monospace;
+    font-size: 12px;
+    line-height: 1.6;
+}
+
+.spider-cdp-container .log-line {
+    color: #d4d4d4;
+    white-space: pre-wrap;
+    word-break: break-all;
+}
+
+.spider-cdp-container .log-line.info { color: #4fc1ff; }
+.spider-cdp-container .log-line.success { color: #6aab73; }
+.spider-cdp-container .log-line.error { color: #f48771; }
+.spider-cdp-container .log-line.warn { color: #dcdcaa; }
+
+/* 通用按钮 */
+.spider-cdp-container .btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 7px 16px;
+    border-radius: 4px;
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    border: 1px solid transparent;
+    transition: all 0.2s;
+}
+
+.spider-cdp-container .btn-primary {
+    background: #2563eb;
+    color: #fff;
+    border-color: #2563eb;
+}
+
+.spider-cdp-container .btn-primary:hover { background: #1d4ed8; border-color: #1d4ed8; }
+
+.spider-cdp-container .btn-success {
+    background: #16a34a;
+    color: #fff;
+    border-color: #16a34a;
+}
+
+.spider-cdp-container .btn-success:hover { background: #15803d; border-color: #15803d; }
+
+.spider-cdp-container .btn-danger {
+    background: #dc2626;
+    color: #fff;
+    border-color: #dc2626;
+}
+
+.spider-cdp-container .btn-danger:hover { background: #b91c1c; border-color: #b91c1c; }
+
+.spider-cdp-container .btn-default {
+    background: #fff;
+    color: #333;
+    border-color: #d9d9d9;
+}
+
+.spider-cdp-container .btn-default:hover { color: #1a1a1a; border-color: #999; }
+
+.spider-cdp-container .btn-warning {
+    background: #faad14;
+    color: #fff;
+    border-color: #faad14;
+}
+
+.spider-cdp-container .btn-warning:hover { background: #ffc53d; border-color: #ffc53d; }
+
+.spider-cdp-container .btn-sm {
+    padding: 4px 10px;
+    font-size: 12px;
+}
+
+.spider-cdp-container .btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+/* 表单元素 */
+.spider-cdp-container .form-group {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.spider-cdp-container .form-group label {
+    font-size: 13px;
+    color: #666;
+    white-space: nowrap;
+}
+
+.spider-cdp-container .form-group input[type="number"],
+.spider-cdp-container .form-group input[type="text"] {
+    padding: 5px 10px;
+    border: 1px solid #d9d9d9;
+    border-radius: 4px;
+    font-size: 13px;
+    width: 100px;
+}
+
+.spider-cdp-container .form-group input:focus {
+    outline: none;
+    border-color: #2563eb;
+    box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.1);
+}

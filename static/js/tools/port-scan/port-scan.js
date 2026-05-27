@@ -298,42 +298,14 @@ function PortScanModule() {
     };
 
     this.escapeHtml = function(text) {
-        var div = document.createElement('div');
-        div.textContent = text;
-        return div.innerHTML;
+        return FacaiUtils.escapeHtml(text);
     };
 
     this.fallbackCopy = function(text) {
-        var textarea = document.createElement('textarea');
-        textarea.value = text;
-        textarea.style.position = 'fixed';
-        textarea.style.opacity = '0';
-        document.body.appendChild(textarea);
-        textarea.select();
-
-        try {
-            document.execCommand('copy');
-            this.showToast('复制成功！');
-        } catch (err) {
-            alert('复制失败，请手动复制');
-        }
-
-        document.body.removeChild(textarea);
+        FacaiUtils.fallbackCopy(text);
     };
 
     this.showToast = function(message) {
-        var toast = $('<div class="scan-toast">' + message + '</div>');
-        $('body').append(toast);
-
-        setTimeout(function() {
-            toast.addClass('show');
-        }, 10);
-
-        setTimeout(function() {
-            toast.removeClass('show');
-            setTimeout(function() {
-                toast.remove();
-            }, 300);
-        }, 2000);
+        FacaiUtils.showToast(message);
     };
 }

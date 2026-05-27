@@ -3,6 +3,14 @@ import nmap
 from typing import Any, Dict
 
 
+def _get_socks5_proxy():
+    try:
+        from service.Class_Core_Function import Class_Core_Function
+        return Class_Core_Function().callback_socks5_proxy()
+    except Exception:
+        return None
+
+
 def port_scan(target: str, args: str = '', ports: str = '') -> Dict[str, Any]:
     """
     使用nmap进行端口扫描
@@ -22,27 +30,24 @@ def port_scan(target: str, args: str = '', ports: str = '') -> Dict[str, Any]:
             - error: 错误信息（如果有）
     """
     try:
-        # 初始化nmap扫描器
         nm = nmap.PortScanner()
         
-        # 构建扫描参数
         scan_args = args if args else '-sV'
         
-        # 构建命令
         command = f'{scan_args} -p {ports}'
+
+        proxy = _get_socks5_proxy()
+        if proxy:
+            command += f' --proxies {proxy}'
         
-        # 执行扫描
         nm.scan(target, arguments=command)
         
-        # 解析结果
         results = []
         
         for host in nm.all_hosts():
-            # 检查主机是否扫描成功
             if 'status' not in nm[host]:
                 continue
                 
-            # 获取TCP端口信息
             if 'tcp' in nm[host]:
                 for port, port_info in nm[host]['tcp'].items():
                     result = {
@@ -55,7 +60,6 @@ def port_scan(target: str, args: str = '', ports: str = '') -> Dict[str, Any]:
                     }
                     results.append(result)
             
-            # 获取UDP端口信息
             if 'udp' in nm[host]:
                 for port, port_info in nm[host]['udp'].items():
                     result = {
@@ -68,14 +72,11 @@ def port_scan(target: str, args: str = '', ports: str = '') -> Dict[str, Any]:
                     }
                     results.append(result)
         
-        # 获取原始输出
         raw_output = nm.get_nmap_last_output()
-        # 将bytes类型转换为字符串
         if isinstance(raw_output, bytes):
             try:
                 raw_output = raw_output.decode('utf-8')
             except UnicodeDecodeError:
-                # 如果UTF-8解码失败，尝试其他编码或使用replace
                 raw_output = raw_output.decode('utf-8', errors='replace')
         
         return {

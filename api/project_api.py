@@ -23,22 +23,14 @@ def add_project():
 
 @project_api.route('/api/projects/update', methods=['POST'])
 def update_project():
-    """更新项目"""
+    """更新项目（部分更新，只修改传入的字段）"""
     project_data = request.json
     project_name = project_data.get('Project')
     
-    print(f"\n[API] ===== 更新项目请求 =====")
-    print(f"[API] 项目名称: {project_name}")
-    print(f"[API] 接收到的数据字段: {list(project_data.keys())}")
-    print(f"[API] personal_info字段内容: {project_data.get('personal_info')}")
-    print(f"[API] personal_info类型: {type(project_data.get('personal_info'))}")
-    
     if not project_name:
         return jsonify({'success': False, 'message': '项目名称不能为空'})
-    result = project_db.update_project(project_name, project_data)
     
-    print(f"[API] 更新结果: {result}")
-    print(f"[API] ===== 更新项目请求结束 =====\n")
+    result = project_db.partial_update(project_name, project_data)
     
     if result:
         return jsonify({'success': True, 'message': '项目更新成功'})

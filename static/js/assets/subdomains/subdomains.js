@@ -2,6 +2,7 @@ function SubdomainsModule() {
     this.currentPage = 1;
     this.pageSize = 20;
     this.searchKeyword = '';
+    this.searchType = 'subdomain';
 
     this.render = function(data, container) {
         // 保存容器引用
@@ -18,8 +19,15 @@ function SubdomainsModule() {
                         </div>
                     </div>
                 </div>
-                <div class="form-group p-3">
+                <div class="form-group">
                     <div class="row mb-3">
+                        <div class="col-md-2">
+                            <select class="form-control" id="searchType">
+                                <option value="subdomain">子域名</option>
+                                <option value="ip">IP</option>
+                                <option value="port">端口</option>
+                            </select>
+                        </div>
                         <div class="col-md-4">
                             <input type="text" class="form-control" id="searchSubdomain" placeholder="搜索子域名...">
                         </div>
@@ -43,7 +51,7 @@ function SubdomainsModule() {
                             <tbody id="subdomainList"></tbody>
                         </table>
                     </div>
-                    <div id="pagination"></div>
+                    <div id="subdomainsPagination" class="module-pagination"></div>
                 </div>
             </div>
         `);
@@ -60,6 +68,7 @@ function SubdomainsModule() {
                 page: self.currentPage,
                 page_size: self.pageSize,
                 search_keyword: self.searchKeyword,
+                search_type: self.searchType,
                 sort_by: 'time',
                 sort_order: -1
             },
@@ -96,8 +105,8 @@ function SubdomainsModule() {
                                 <td>${portList}</td>
                                 <td>${item.time || ''}</td>
                                 <td>
-                                    <button class="btn btn-info btn-sm view-detail" data-id="${item._id}">详情</button>
-                                    <button class="btn btn-danger btn-sm delete-subdomain" data-id="${item._id}">删除</button>
+                                    <button class="btn btn-info btn-sm view-detail" data-id="${item._id}" style="min-width:52px;padding:4px 10px;">详情</button>
+                                    <button class="btn btn-danger btn-sm delete-subdomain" data-id="${item._id}" style="min-width:52px;padding:4px 10px;">删除</button>
                                 </td>
                             </tr>
                         `);
@@ -111,10 +120,11 @@ function SubdomainsModule() {
                             self.currentPage = page;
                             self.loadSubdomains();
                         }
-                    });
-                    $('#pagination').html(paginationHtml);
+                    }, self.container);
+                    self.container.find('.module-pagination').html(paginationHtml);
                 } else {
                     tbody.append('<tr><td colspan="6" class="text-center">暂无数据</td></tr>');
+                    self.container.find('.module-pagination').html('');
                 }
             },
             error: function() {
@@ -127,13 +137,13 @@ function SubdomainsModule() {
         var self = this;
 
         // 刷新按钮
-        $('#refreshSubdomains').on('click', function() {
+        this.container.on('click', '#refreshSubdomains', function() {
             self.currentPage = 1;
             self.loadSubdomains();
         });
 
         // 清空按钮
-        $('#clearSubdomains').on('click', function() {
+        this.container.on('click', '#clearSubdomains', function() {
             if (confirm('确定要清空所有子域名数据吗？')) {
                 $.ajax({
                     url: '/api/assets/subdomains/clear',
@@ -151,15 +161,14 @@ function SubdomainsModule() {
             }
         });
 
-        // 搜索按钮
-        $('#searchBtn').on('click', function() {
+        this.container.on('click', '#searchBtn', function() {
+            self.searchType = self.container.find('#searchType').val();
             self.searchKeyword = $('#searchSubdomain').val();
             self.currentPage = 1;
             self.loadSubdomains();
         });
 
-        // 清除搜索按钮
-        $('#clearSearchBtn').on('click', function() {
+        this.container.on('click', '#clearSearchBtn', function() {
             $('#searchSubdomain').val('');
             self.searchKeyword = '';
             self.currentPage = 1;
@@ -167,7 +176,7 @@ function SubdomainsModule() {
         });
 
         // 搜索框回车搜索
-        $('#searchSubdomain').on('keypress', function(e) {
+        this.container.on('keypress', '#searchSubdomain', function(e) {
             if (e.which === 13) {
                 $('#searchBtn').click();
             }

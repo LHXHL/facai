@@ -1,4 +1,4 @@
-.projects-container {
+﻿.projects-container {
     padding: 20px;
 }
 
@@ -8,14 +8,14 @@
     padding: 24px;
     margin-bottom: 16px;
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
-    border: 1px solid #e2e8f0;
+    border: 1px solid #e5e5e5;
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .project-card:hover {
-    box-shadow: 0 12px 24px rgba(102, 126, 234, 0.15);
+    box-shadow: 0 12px 24px rgba(37, 99, 235, 0.15);
     transform: translateY(-4px);
-    border-color: rgba(102, 126, 234, 0.3);
+    border-color: rgba(37, 99, 235, 0.3);
 }
 
 .project-header {
@@ -37,7 +37,7 @@
 }
 
 .project-info {
-    color: #718096;
+    color: #555;
     font-size: 14px;
     line-height: 1.6;
 }
@@ -54,67 +54,22 @@
 }
 
 .project-status.active {
-    background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+    background: #16a34a;
     color: #fff;
-    box-shadow: 0 4px 8px rgba(16, 185, 129, 0.3);
+    box-shadow: 0 4px 8px rgba(22, 163, 74, 0.3);
 }
 
 .project-status.inactive {
-    background: linear-gradient(135deg, #718096 0%, #4a5568 100%);
+    background: #8c8c8c;
     color: #fff;
     box-shadow: 0 4px 8px rgba(113, 128, 150, 0.3);
 }
 
-/* Card Component */
-.card {
-    background-color: #fff;
-    border: 1px solid rgba(0,0,0,.125);
-    border-radius: .25rem;
-}
+/* Card Component - head.css 已定义 .card 和 .card-header */
 
-.card-header {
-    padding: .75rem 1.25rem;
-    background-color: rgba(0,0,0,.03);
-    border-bottom: 1px solid rgba(0,0,0,.125);
-}
+/* Grid System - head.css 已定义 */
 
-/* Grid System */
-.row {
-    display: flex;
-    flex-wrap: wrap;
-    margin-right: -15px;
-    margin-left: -15px;
-    width: 100%;
-    box-sizing: border-box;
-}
-
-.col-md-6 {
-    flex: 0 0 50%;
-    max-width: 50%;
-    position: relative;
-    width: 100%;
-    padding-right: 15px;
-    padding-left: 15px;
-    box-sizing: border-box;
-}
-
-/* Table Component */
-.table {
-    width: 100%;
-    margin-bottom: 1rem;
-    color: #212529;
-    border-collapse: collapse;
-}
-
-/* Table container with horizontal scroll */
-.table-responsive {
-    overflow-x: auto;
-    -webkit-overflow-scrolling: touch;
-    max-width: 100%;
-    position: relative;
-    max-height: 600px;
-    overflow-y: auto;
-}
+/* Table container - head.css 已定义 .table-responsive 基础样式 */
 
 .table-responsive .table {
     min-width: 800px;
@@ -166,51 +121,9 @@
     background-color: rgba(0,0,0,.02);
 }
 
-/* Form Layout */
-.form-group {
-    margin-bottom: 1rem;
-}
+/* Form Layout - head.css 已定义 .form-group */
 
-.form-control {
-    width: 100%;
-    padding: 10px 14px;
-    font-size: 14px;
-    line-height: 1.5;
-    color: #2d3748;
-    background-color: #ffffff;
-    border: 1px solid #e2e8f0;
-    border-radius: 6px;
-    transition: all 0.2s ease;
-    box-sizing: border-box;
-    display: block;
-}
-
-.form-control:focus {
-    border-color: #667eea;
-    outline: 0;
-    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
-}
-
-/* Utility Classes */
-.p-3 {
-    padding: 1rem;
-}
-
-.text-right {
-    text-align: right;
-}
-
-.text-success {
-    color: #28a745;
-}
-
-.text-muted {
-    color: #6c757d;
-}
-
-.mr-3 {
-    margin-right: 15px;
-}
+/* Utility Classes - head.css 已定义 */
 
 /* Card header row alignment */
 .card-header .row {
@@ -305,7 +218,7 @@
     border: none;
     font-size: 1.5rem;
     line-height: 1;
-    color: #000;
+    color: #666;
     cursor: pointer;
     padding: 0;
     width: 30px;
@@ -316,7 +229,7 @@
 }
 
 .modal-header .close:hover {
-    color: #666;
+    color: #1a1a1a;
 }
 
 /* Modal Body - Override head.css styles */
@@ -335,7 +248,7 @@
     justify-content: flex-end !important;
     gap: 10px;
     padding: 20px 24px;
-    border-top: 1px solid #e2e8f0;
+    border-top: 1px solid #e5e5e5;
     background: #f8f9fa;
     width: 100%;
     box-sizing: border-box;
@@ -378,7 +291,7 @@
     line-height: 1.5;
     color: #2d3748;
     background-color: #ffffff;
-    border: 1px solid #e2e8f0;
+    border: 1px solid #e5e5e5;
     border-radius: 6px;
     transition: all 0.2s ease;
     box-sizing: border-box;
@@ -386,9 +299,9 @@
 }
 
 .modal-body .form-control:focus {
-    border-color: #667eea;
+    border-color: #2563eb;
     outline: 0;
-    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
 }
 
 .modal-body textarea.form-control {
@@ -476,14 +389,6 @@
 }
 
 /* Modal utility classes */
-.mb-2 {
-    margin-bottom: 10px;
-}
-
-.mt-2 {
-    margin-top: 10px;
-}
-
 .modal-body .btn {
     margin-top: 8px;
 }
@@ -493,81 +398,7 @@
     margin-top: 12px;
 }
 
-/* Buttons */
-.btn {
-    display: inline-block;
-    font-weight: 600;
-    text-align: center;
-    vertical-align: middle;
-    cursor: pointer;
-    border: 1px solid transparent;
-    padding: 10px 20px;
-    font-size: 14px;
-    line-height: 1.5;
-    border-radius: 6px;
-    transition: all 0.2s ease;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-}
-
-.btn:hover {
-    transform: translateY(-1px);
-    box-shadow: 0 4px 8px rgba(0,0,0,0.15);
-}
-
-.btn:active {
-    transform: translateY(0);
-}
-
-.btn-primary {
-    color: #fff;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    border-color: transparent;
-}
-
-.btn-primary:hover {
-    background: linear-gradient(135deg, #5568d3 0%, #6a4191 100%);
-}
-
-.btn-secondary {
-    color: #fff;
-    background: linear-gradient(135deg, #718096 0%, #4a5568 100%);
-    border-color: transparent;
-}
-
-.btn-secondary:hover {
-    background: linear-gradient(135deg, #5a6268 0%, #3d4452 100%);
-}
-
-.btn-success {
-    color: #fff;
-    background: linear-gradient(135deg, #10b981 0%, #059669 100%);
-    border-color: transparent;
-}
-
-.btn-success:hover {
-    background: linear-gradient(135deg, #0d9668 0%, #047857 100%);
-}
-
-.btn-warning {
-    color: #212529;
-    background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
-    border-color: transparent;
-}
-
-.btn-warning:hover {
-    background: linear-gradient(135deg, #d97706 0%, #b45309 100%);
-}
-
-.btn-danger {
-    color: #fff;
-    background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
-    border-color: transparent;
-}
-
-.btn-danger:hover {
-    background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
-}
-
+/* Buttons - head.css 已定义 .btn 系列 */
 .btn-sm {
     padding: 6px 14px;
     font-size: 12px;

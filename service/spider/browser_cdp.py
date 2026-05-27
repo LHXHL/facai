@@ -21,6 +21,7 @@ import random
 import os
 import subprocess
 import socket
+import sys
 import psutil
 from service.Class_Core_Function import Class_Core_Function
 
@@ -65,7 +66,21 @@ class BrowserCDP:
                 return config['chrome_path']
         except:
             pass
-        return r"C:\Program Files\Google\Chrome\Application\chrome.exe"  # 默认路径
+        if sys.platform == 'win32':
+            return r"C:\Program Files\Google\Chrome\Application\chrome.exe"
+        elif sys.platform == 'darwin':
+            return "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome"
+        else:
+            for candidate in [
+                '/usr/bin/google-chrome',
+                '/usr/bin/google-chrome-stable',
+                '/usr/bin/chromium-browser',
+                '/usr/bin/chromium',
+                '/snap/bin/chromium',
+            ]:
+                if os.path.exists(candidate):
+                    return candidate
+            return 'google-chrome'
 
     def _check_port_in_use(self, port):
         """检查端口是否被占用"""
@@ -101,7 +116,7 @@ class BrowserCDP:
             
             # 获取代理端口
             config = self.Core_Function.callback_config()
-            proxy_port = config.get('burp_port', 8080) if config else 8080
+            proxy_port = config.get('mitmproxy_port', 18081) if config else 18081
             
             # 获取项目名和UA
             project_name = 'default'
@@ -125,12 +140,11 @@ class BrowserCDP:
                 import time
                 time.sleep(2)
             
-            # 构建启动命令
-            cmd_parts = [
-                f'"{chrome_path}"',
+            chrome_args = [
+                chrome_path,
                 f'--remote-debugging-port={cdp_port}',
                 f'--proxy-server=127.0.0.1:{proxy_port}',
-                f'--user-data-dir="{user_data_dir}"',
+                f'--user-data-dir={user_data_dir}',
                 '--headless',
                 '--disable-gpu',
                 '--no-sandbox',
@@ -139,17 +153,18 @@ class BrowserCDP:
             ]
             
             if user_agent:
-                cmd_parts.append(f'--user-agent="{user_agent}"')
+                chrome_args.append(f'--user-agent={user_agent}')
             
-            cmd = ' '.join(cmd_parts)
             self.Core_Function.callback_logging().info(f"启动Chrome headless: CDP={cdp_port}, Proxy=127.0.0.1:{proxy_port}")
             
-            subprocess.Popen(
-                cmd,
-                shell=True,
-                stdout=subprocess.PIPE,
-                stderr=subprocess.PIPE
-            )
+            popen_kwargs = {
+                'stdout': subprocess.PIPE,
+                'stderr': subprocess.PIPE,
+            }
+            if os.name == 'nt':
+                popen_kwargs['creationflags'] = subprocess.CREATE_NO_WINDOW
+            
+            subprocess.Popen(chrome_args, **popen_kwargs)
             
             # 等待启动
             import time
@@ -184,13 +199,13 @@ class BrowserCDP:
                 '--hide-scrollbars',
                 url
             ]
-            # 执行命令，超时10秒
-            result = subprocess.run(
-                cmd,
-                timeout=10,
-                capture_output=True,
-                creationflags=subprocess.CREATE_NO_WINDOW if os.name == 'nt' else 0
-            )
+            run_kwargs = {
+                'timeout': 10,
+                'capture_output': True,
+            }
+            if os.name == 'nt':
+                run_kwargs['creationflags'] = subprocess.CREATE_NO_WINDOW
+            result = subprocess.run(cmd, **run_kwargs)
             # 检查截图文件是否存在
             return os.path.exists(output_path)
         except subprocess.TimeoutExpired:

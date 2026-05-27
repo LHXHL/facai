@@ -17,11 +17,13 @@ scaner/
    vul_core.py        # 调度中心
    file_vuln.py       # 文件漏洞扫描
    info_leak.py       # 信息泄露扫描
+   fuzz_engine.py     # 爆破工具引擎
    vul_config.json    # 配置文件
 """
 
 from .vuln_core import VulnerabilityScanner, Scanner
 from .param_handler import ParamHandler
+from .fuzz_engine import FuzzEngine
 
 # 核心漏洞扫描模块
 from .core_vuln import (
@@ -49,6 +51,9 @@ __all__ = [
     'RCEScanner',
     'SSRFScanner',
     'ParamNameFuzzer',
+    
+    # 爆破引擎
+    'FuzzEngine',
     
     # 其他扫描
     'FileVulnScanner',

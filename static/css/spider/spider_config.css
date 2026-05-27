@@ -1,0 +1,462 @@
+/* ============================================================
+   爬虫配置模块样式
+   ============================================================ */
+
+.spider-config-container .config-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 20px;
+}
+
+.spider-config-container .config-header h2 {
+    margin: 0;
+    font-size: 18px;
+    font-weight: 600;
+    color: #333;
+}
+
+/* 服务状态卡片 */
+.spider-config-container .status-cards {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 14px;
+    margin-bottom: 24px;
+}
+
+.spider-config-container .status-card {
+    position: relative;
+    background: transparent;
+    border-radius: 8px;
+    padding: 18px 20px 18px 24px;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    min-width: 0;
+    border: 1px solid #e8e8e8;
+    overflow: hidden;
+    transition: border-color 0.3s, box-shadow 0.3s;
+}
+
+/* 左侧状态色条 */
+.spider-config-container .status-card::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 4px;
+    background: #d9d9d9;
+    border-radius: 8px 0 0 8px;
+    transition: background 0.3s;
+}
+
+.spider-config-container .status-card.running {
+    border-color: #c5b3e6;
+}
+
+.spider-config-container .status-card.running::before {
+    background: #16a34a;
+}
+
+.spider-config-container .status-card .status-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+    flex-shrink: 0;
+    transition: color 0.3s;
+}
+
+.spider-config-container .status-card .status-icon.running {
+    color: #16a34a;
+}
+
+.spider-config-container .status-card .status-icon.stopped {
+    color: #bfbfbf;
+}
+
+.spider-config-container .status-card .status-info {
+    flex: 1;
+    min-width: 0;
+    background: transparent !important;
+}
+
+.spider-config-container .status-card .status-name {
+    font-size: 14px;
+    color: #1f1f1f;
+    font-weight: 600;
+    margin-bottom: 2px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.spider-config-container .status-card .status-value {
+    font-size: 12px;
+    font-weight: 500;
+    transition: color 0.3s;
+}
+
+.spider-config-container .status-card .status-value.online {
+    color: #16a34a;
+}
+
+.spider-config-container .status-card .status-value.offline {
+    color: #8c8c8c;
+}
+
+/* 配置表单 */
+.spider-config-container .config-section {
+    background: #fff;
+    border: 1px solid #e8e8e8;
+    border-radius: 8px;
+    padding: 20px;
+    margin-bottom: 20px;
+}
+
+.spider-config-container .config-section h3 {
+    font-size: 15px;
+    font-weight: 600;
+    color: #333;
+    margin: 0 0 16px 0;
+    padding-bottom: 10px;
+    border-bottom: 1px solid #f0f0f0;
+}
+
+.spider-config-container .form-row {
+    display: flex;
+    gap: 16px;
+    margin-bottom: 16px;
+    flex-wrap: wrap;
+}
+
+.spider-config-container .form-group {
+    flex: 1;
+    min-width: 200px;
+}
+
+.spider-config-container .form-group label {
+    display: block;
+    font-size: 13px;
+    color: #666;
+    margin-bottom: 6px;
+    font-weight: 500;
+}
+
+.spider-config-container .form-group input,
+.spider-config-container .form-group select {
+    width: 100%;
+    padding: 8px 12px;
+    border: 1px solid #d9d9d9;
+    border-radius: 4px;
+    font-size: 13px;
+    color: #333;
+    background: #fff;
+    transition: border-color 0.2s, box-shadow 0.2s;
+    box-sizing: border-box;
+}
+
+.spider-config-container .form-group input:focus,
+.spider-config-container .form-group select:focus {
+    outline: none;
+    border-color: #2563eb;
+    box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.1);
+}
+
+.spider-config-container .form-group input[type="number"] {
+    width: 120px;
+}
+
+/* 目标网站列表 */
+.spider-config-container .target-list {
+    border: 1px solid #e8e8e8;
+    border-radius: 6px;
+    overflow: hidden;
+    margin-top: 12px;
+}
+
+.spider-config-container .target-list-header {
+    background: #fafafa;
+    padding: 10px 16px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid #e8e8e8;
+}
+
+.spider-config-container .target-list-header span {
+    font-size: 13px;
+    font-weight: 500;
+    color: #333;
+}
+
+.spider-config-container .target-list-body {
+    max-height: 300px;
+    overflow-y: auto;
+}
+
+.spider-config-container .target-item {
+    display: flex;
+    align-items: center;
+    padding: 10px 16px;
+    border-bottom: 1px solid #f0f0f0;
+    gap: 10px;
+    transition: background 0.15s;
+}
+
+.spider-config-container .target-item:last-child {
+    border-bottom: none;
+}
+
+.spider-config-container .target-item:hover {
+    background: #f5f5f5;
+}
+
+.spider-config-container .target-item input[type="checkbox"] {
+    width: 16px;
+    height: 16px;
+    cursor: pointer;
+}
+
+.spider-config-container .target-item .target-url {
+    flex: 1;
+    font-size: 13px;
+    color: #333;
+    word-break: break-all;
+}
+
+.spider-config-container .target-item .target-delete {
+    color: #dc2626;
+    cursor: pointer;
+    font-size: 16px;
+    opacity: 0;
+    transition: opacity 0.15s;
+}
+
+.spider-config-container .target-item:hover .target-delete {
+    opacity: 1;
+}
+
+.spider-config-container .target-empty {
+    padding: 32px 16px;
+    text-align: center;
+    color: #999;
+    font-size: 13px;
+}
+
+/* 爬虫控制区 */
+.spider-config-container .crawler-control {
+    background: #fff;
+    border: 1px solid #e8e8e8;
+    border-radius: 8px;
+    padding: 20px;
+    margin-bottom: 20px;
+}
+
+.spider-config-container .crawler-control h3 {
+    font-size: 15px;
+    font-weight: 600;
+    color: #333;
+    margin: 0 0 16px 0;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.spider-config-container .pending-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: #d97706;
+    color: #fff;
+    font-size: 12px;
+    font-weight: 500;
+    padding: 4px 12px;
+    border-radius: 12px;
+    white-space: nowrap;
+}
+
+.spider-config-container .pending-badge .pending-count {
+    font-weight: 700;
+}
+
+.spider-config-container .control-btns {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+}
+
+.spider-config-container .btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 20px;
+    border-radius: 4px;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    border: 1px solid transparent;
+    transition: all 0.2s;
+}
+
+.spider-config-container .btn-primary {
+    background: #2563eb;
+    color: #fff;
+    border-color: #2563eb;
+}
+
+.spider-config-container .btn-primary:hover {
+    background: #1d4ed8;
+    border-color: #1d4ed8;
+}
+
+.spider-config-container .btn-success {
+    background: #16a34a;
+    color: #fff;
+    border-color: #16a34a;
+}
+
+.spider-config-container .btn-success:hover {
+    background: #15803d;
+    border-color: #15803d;
+}
+
+.spider-config-container .btn-danger {
+    background: #dc2626;
+    color: #fff;
+    border-color: #dc2626;
+}
+
+.spider-config-container .btn-danger:hover {
+    background: #ff7875;
+    border-color: #ff7875;
+}
+
+.spider-config-container .btn-default {
+    background: #fff;
+    color: #333;
+    border-color: #d9d9d9;
+}
+
+.spider-config-container .btn-default:hover {
+    color: #1a1a1a;
+    border-color: #999;
+}
+
+.spider-config-container .btn-warning {
+    background: #faad14;
+    color: #fff;
+    border-color: #faad14;
+}
+
+.spider-config-container .btn-warning:hover {
+    background: #ffc53d;
+    border-color: #ffc53d;
+}
+
+.spider-config-container .btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+/* 爬虫日志 */
+.spider-config-container .crawler-log {
+    background: #fff;
+    border: 1px solid #e8e8e8;
+    border-radius: 8px;
+    padding: 20px;
+}
+
+.spider-config-container .crawler-log .log-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 12px;
+}
+
+.spider-config-container .crawler-log .log-header h3 {
+    font-size: 15px;
+    font-weight: 600;
+    color: #333;
+    margin: 0;
+}
+
+.spider-config-container .crawler-log .log-header #spiderClearLog {
+    padding: 4px 12px;
+    font-size: 12px;
+}
+
+.spider-config-container .log-content {
+    background: #1e1e1e;
+    border-radius: 6px;
+    padding: 16px;
+    max-height: 400px;
+    overflow-y: auto;
+    font-family: 'Consolas', 'Monaco', monospace;
+    font-size: 12px;
+    line-height: 1.6;
+}
+
+.spider-config-container .log-line {
+    color: #d4d4d4;
+    white-space: pre-wrap;
+    word-break: break-all;
+}
+
+.spider-config-container .log-line.info {
+    color: #4fc1ff;
+}
+
+.spider-config-container .log-line.success {
+    color: #6aab73;
+}
+
+.spider-config-container .log-line.error {
+    color: #f48771;
+}
+
+.spider-config-container .log-line.warn {
+    color: #dcdcaa;
+}
+
+.spider-config-container .log-timestamp {
+    color: #858585;
+    margin-right: 8px;
+}
+
+/* 进度条 */
+.spider-config-container .progress-bar-container {
+    margin-top: 16px;
+    display: none;
+}
+
+.spider-config-container .progress-bar-container.active {
+    display: block;
+}
+
+.spider-config-container .progress-info {
+    display: flex;
+    justify-content: space-between;
+    font-size: 12px;
+    color: #666;
+    margin-bottom: 6px;
+}
+
+.spider-config-container .progress-bar {
+    height: 8px;
+    background: #f0f0f0;
+    border-radius: 4px;
+    overflow: hidden;
+}
+
+.spider-config-container .progress-bar-fill {
+    height: 100%;
+    background: #2563eb;
+    border-radius: 4px;
+    transition: width 0.3s;
+    width: 0%;
+}
